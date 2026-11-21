@@ -24,3 +24,5 @@ Notes:
   `@google/genai` npm package was removed as unused. Only relevant if/when
   server-side Gemini features are actually wired in.
 - Quality gates: `bun run lint` (TypeScript check) and `bun test` (rule/unit tests).
+
+- Self-hosting / free deployment (Vercel Hobby + Firebase Spark): see `DEPLOYMENT.md`.
