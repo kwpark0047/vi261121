@@ -19,8 +19,8 @@ View your app in AI Studio: https://ai.studio/apps/a9cb00bc-75a9-456f-a589-78399
 
 Notes:
 
-- `GEMINI_API_KEY` is declared in `.env.example`/`.env` handling and the app
-  metadata, but no current code path in this repo reads it — AI Studio injects
-  platform secrets at runtime. Only needed if/when server-side Gemini features
-  are wired in.
+- `GEMINI_API_KEY` appears only in `.env.example` and app metadata as a
+  platform-side declaration; no in-repo code path reads it, and the
+  `@google/genai` npm package was removed as unused. Only relevant if/when
+  server-side Gemini features are actually wired in.
 - Quality gates: `bun run lint` (TypeScript check) and `bun test` (rule/unit tests).
