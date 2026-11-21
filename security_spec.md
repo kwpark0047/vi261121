@@ -21,3 +21,13 @@
 10. **Like Counter Manipulation (+999)**: Updating `/projects/p1` to set `likesCount = existing().likesCount + 999`.
 11. **Terminal State / Claim Auto-Approval**: Creating or updating `/ownershipClaims/c1` with `status: "approved"` as claimant.
 12. **Blanket List Query Scraping**: Running `list` on `/reports` or `/ownershipClaims` as a regular user without scoping to `reporterUid == request.auth.uid` / `claimantUid == request.auth.uid`.
+
+## 3. Documented Public Surface
+
+- `match /test/connection` allows `get` for anyone (`allow get: if true`). It is
+  an intentional reachability probe (client `testConnection()` in
+  `src/lib/firebase.ts`), not a data read; it carries no schema and exposes
+  nothing beyond existence/connectivity of the Firestore endpoint.
+- Everything else, including all user/PII/report/claim collections, is covered
+  by the top-level `match /{document=**} { allow read, write: if false; }`
+  default-deny net plus the per-collection rules.
