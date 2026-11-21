@@ -1,0 +1,463 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A vibe-coded application, AI tool, MCP server, AI skill, agent, template, or open-source project listed on VibeAtlas.",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100,
+          "pattern": "^[a-z0-9\\-]+$",
+          "description": "URL-safe unique project slug"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120,
+          "description": "Project display name"
+        },
+        "tagline": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 220,
+          "description": "Concise English tagline"
+        },
+        "taglineKo": {
+          "type": "string",
+          "maxLength": 220,
+          "description": "Concise Korean tagline"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 4000,
+          "description": "Detailed English description"
+        },
+        "descriptionKo": {
+          "type": "string",
+          "maxLength": 4000,
+          "description": "Detailed Korean description"
+        },
+        "contentType": {
+          "type": "string",
+          "enum": [
+            "web_app",
+            "ai_tool",
+            "mcp_server",
+            "ai_skill",
+            "ai_agent",
+            "template",
+            "open_source"
+          ]
+        },
+        "categories": {
+          "type": "array",
+          "description": "Up to 6 category identifiers"
+        },
+        "techStack": {
+          "type": "array",
+          "description": "Up to 12 stack technologies"
+        },
+        "developmentPlatform": {
+          "type": "string",
+          "enum": [
+            "lovable",
+            "cursor",
+            "windsurf",
+            "bolt",
+            "v0",
+            "claude_code",
+            "replit",
+            "custom"
+          ]
+        },
+        "hostingProvider": {
+          "type": "string",
+          "enum": [
+            "vercel",
+            "cloudflare",
+            "aws",
+            "fly_io",
+            "gcp",
+            "netlify",
+            "self_hosted",
+            "unknown"
+          ]
+        },
+        "backendTech": {
+          "type": "string",
+          "enum": [
+            "supabase",
+            "firebase",
+            "postgresql",
+            "nodejs",
+            "python_fastapi",
+            "sqlite",
+            "serverless",
+            "none",
+            "unknown"
+          ]
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 12,
+          "pattern": "^[A-Z]{2,12}$"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["ko", "en", "bilingual", "other"]
+        },
+        "license": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "pricingModel": {
+          "type": "string",
+          "enum": ["free", "open_source", "freemium", "paid", "enterprise"]
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": ["verified", "pending", "unverified"]
+        },
+        "provenanceSource": {
+          "type": "string",
+          "enum": ["github_sync", "maker_submitted", "editorial_curated"]
+        },
+        "liveDemoUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "websiteUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "githubRepo": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "githubUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "thumbnailUrl": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "makerName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "makerHandle": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "ownerUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "githubStars": {
+          "type": "number"
+        },
+        "githubForks": {
+          "type": "number"
+        },
+        "likesCount": {
+          "type": "number"
+        },
+        "bookmarksCount": {
+          "type": "number"
+        },
+        "lastSyncedAt": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 64
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "slug",
+        "name",
+        "tagline",
+        "description",
+        "contentType",
+        "categories",
+        "techStack",
+        "developmentPlatform",
+        "hostingProvider",
+        "backendTech",
+        "country",
+        "language",
+        "license",
+        "pricingModel",
+        "verificationStatus",
+        "provenanceSource",
+        "makerName",
+        "ownerUid",
+        "githubStars",
+        "githubForks",
+        "likesCount",
+        "bookmarksCount",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserPublicProfile": {
+      "title": "UserPublicProfile",
+      "description": "Public maker profile fields separated from private PII.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "handle": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "bio": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "displayName", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Owner-only PII record storing authenticated email.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 200
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "createdAt"]
+    },
+    "ProjectLike": {
+      "title": "ProjectLike",
+      "description": "Per-user internal like record on a project.",
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["projectId", "userId", "createdAt"]
+    },
+    "UserBookmark": {
+      "title": "UserBookmark",
+      "description": "Per-user private bookmark entry referencing a project.",
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "projectSlug": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "projectName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["projectId", "projectSlug", "projectName", "userId", "createdAt"]
+    },
+    "ProjectReport": {
+      "title": "ProjectReport",
+      "description": "User-submitted data quality, broken link, or abuse report.",
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "projectSlug": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "reporterUid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "reason": {
+          "type": "string",
+          "enum": ["broken_link", "stale_metadata", "spam", "misattribution", "security_concern"]
+        },
+        "details": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 1000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["open", "reviewed", "resolved"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["projectId", "projectSlug", "reporterUid", "reason", "details", "status", "createdAt"]
+    },
+    "OwnershipClaim": {
+      "title": "OwnershipClaim",
+      "description": "Maker ownership verification claim for an existing listing.",
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "projectSlug": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "claimantUid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "verificationMethod": {
+          "type": "string",
+          "enum": ["github_repo", "domain_dns", "demo_meta"]
+        },
+        "proofNote": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 1000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved", "rejected"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["projectId", "projectSlug", "claimantUid", "verificationMethod", "proofNote", "status", "createdAt"]
+    },
+    "NewsletterSubscription": {
+      "title": "NewsletterSubscription",
+      "description": "User-scoped newsletter digest subscription.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 200
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "enum": ["ko", "en"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "preferredLanguage", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Publicly discoverable directory listings."
+    },
+    "/projects/{projectId}/likes/{userId}": {
+      "schema": { "$ref": "#/entities/ProjectLike" },
+      "description": "Per-user project like records synced with parent likesCount."
+    },
+    "/users/{userId}/public/profile": {
+      "schema": { "$ref": "#/entities/UserPublicProfile" },
+      "description": "Public maker profile."
+    },
+    "/users/{userId}/private/info": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Private PII record restricted to account owner."
+    },
+    "/users/{userId}/bookmarks/{projectId}": {
+      "schema": { "$ref": "#/entities/UserBookmark" },
+      "description": "Private user bookmarks."
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/ProjectReport" },
+      "description": "Project metadata inaccuracy or abuse reports."
+    },
+    "/ownershipClaims/{claimId}": {
+      "schema": { "$ref": "#/entities/OwnershipClaim" },
+      "description": "Maker ownership claim requests."
+    },
+    "/newsletterSubscribers/{subId}": {
+      "schema": { "$ref": "#/entities/NewsletterSubscription" },
+      "description": "Authenticated user newsletter subscriptions."
+    }
+  }
+}

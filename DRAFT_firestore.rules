@@ -1,0 +1,375 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'kwpark0047@iceu.kr' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidBoundedString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isValidOptionalUrl(val) {
+      return val is string && val.size() <= 500 && (val == '' || val.matches('^https?://.+'));
+    }
+
+    function isValidStringArray(arr, maxLen) {
+      return arr is list && arr.size() <= maxLen && (arr.size() == 0 || arr[0] is string);
+    }
+
+    function isValidProjectShape(data) {
+      return isValidBoundedString(data.slug, 2, 100) &&
+        data.slug.matches('^[a-z0-9\\-]+$') &&
+        isValidBoundedString(data.name, 2, 120) &&
+        isValidBoundedString(data.tagline, 5, 220) &&
+        isValidBoundedString(data.taglineKo, 0, 220) &&
+        isValidBoundedString(data.description, 20, 4000) &&
+        isValidBoundedString(data.descriptionKo, 0, 4000) &&
+        data.contentType in ['web_app', 'ai_tool', 'mcp_server', 'ai_skill', 'ai_agent', 'template', 'open_source'] &&
+        isValidStringArray(data.categories, 6) &&
+        isValidStringArray(data.techStack, 12) &&
+        data.developmentPlatform in ['lovable', 'cursor', 'windsurf', 'bolt', 'v0', 'claude_code', 'replit', 'custom'] &&
+        data.hostingProvider in ['vercel', 'cloudflare', 'aws', 'fly_io', 'gcp', 'netlify', 'self_hosted', 'unknown'] &&
+        data.backendTech in ['supabase', 'firebase', 'postgresql', 'nodejs', 'python_fastapi', 'sqlite', 'serverless', 'none', 'unknown'] &&
+        isValidBoundedString(data.country, 2, 12) &&
+        data.country.matches('^[A-Z]{2,12}$') &&
+        data.language in ['ko', 'en', 'bilingual', 'other'] &&
+        isValidBoundedString(data.license, 1, 64) &&
+        data.pricingModel in ['free', 'open_source', 'freemium', 'paid', 'enterprise'] &&
+        data.verificationStatus in ['verified', 'pending', 'unverified'] &&
+        data.provenanceSource in ['github_sync', 'maker_submitted', 'editorial_curated'] &&
+        isValidOptionalUrl(data.liveDemoUrl) &&
+        isValidOptionalUrl(data.websiteUrl) &&
+        isValidBoundedString(data.githubRepo, 0, 160) &&
+        isValidOptionalUrl(data.githubUrl) &&
+        isValidBoundedString(data.thumbnailUrl, 0, 500) &&
+        isValidBoundedString(data.makerName, 1, 100) &&
+        isValidBoundedString(data.makerHandle, 0, 80) &&
+        isValidId(data.ownerUid) &&
+        data.githubStars is number && data.githubStars >= 0 && data.githubStars <= 10000000 &&
+        data.githubForks is number && data.githubForks >= 0 && data.githubForks <= 10000000 &&
+        data.likesCount is number && data.likesCount >= 0 && data.likesCount <= 10000000 &&
+        data.bookmarksCount is number && data.bookmarksCount >= 0 && data.bookmarksCount <= 10000000 &&
+        isValidBoundedString(data.lastSyncedAt, 0, 64) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidProjectCreate(data) {
+      return data.keys().hasAll([
+          'slug', 'name', 'tagline', 'taglineKo', 'description', 'descriptionKo',
+          'contentType', 'categories', 'techStack', 'developmentPlatform',
+          'hostingProvider', 'backendTech', 'country', 'language', 'license',
+          'pricingModel', 'verificationStatus', 'provenanceSource',
+          'liveDemoUrl', 'websiteUrl', 'githubRepo', 'githubUrl', 'thumbnailUrl',
+          'makerName', 'makerHandle', 'ownerUid', 'githubStars', 'githubForks',
+          'likesCount', 'bookmarksCount', 'lastSyncedAt', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'slug', 'name', 'tagline', 'taglineKo', 'description', 'descriptionKo',
+          'contentType', 'categories', 'techStack', 'developmentPlatform',
+          'hostingProvider', 'backendTech', 'country', 'language', 'license',
+          'pricingModel', 'verificationStatus', 'provenanceSource',
+          'liveDemoUrl', 'websiteUrl', 'githubRepo', 'githubUrl', 'thumbnailUrl',
+          'makerName', 'makerHandle', 'ownerUid', 'githubStars', 'githubForks',
+          'likesCount', 'bookmarksCount', 'lastSyncedAt', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidProjectShape(data);
+    }
+
+    function isValidProjectUpdate(data) {
+      return data.keys().hasOnly([
+          'slug', 'name', 'tagline', 'taglineKo', 'description', 'descriptionKo',
+          'contentType', 'categories', 'techStack', 'developmentPlatform',
+          'hostingProvider', 'backendTech', 'country', 'language', 'license',
+          'pricingModel', 'verificationStatus', 'provenanceSource',
+          'liveDemoUrl', 'websiteUrl', 'githubRepo', 'githubUrl', 'thumbnailUrl',
+          'makerName', 'makerHandle', 'ownerUid', 'githubStars', 'githubForks',
+          'likesCount', 'bookmarksCount', 'lastSyncedAt', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidProjectShape(data);
+    }
+
+    function isValidProjectLike(data, projectId, userId) {
+      return data.keys().hasAll(['projectId', 'userId', 'createdAt']) &&
+        data.keys().hasOnly(['projectId', 'userId', 'createdAt']) &&
+        data.projectId == projectId &&
+        data.userId == userId &&
+        data.createdAt == request.time;
+    }
+
+    function isValidPublicProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'handle', 'bio', 'country', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'displayName', 'handle', 'bio', 'country', 'updatedAt']) &&
+        data.uid == userId &&
+        isValidBoundedString(data.displayName, 1, 100) &&
+        isValidBoundedString(data.handle, 0, 64) &&
+        isValidBoundedString(data.bio, 0, 400) &&
+        isValidBoundedString(data.country, 0, 12) &&
+        data.updatedAt == request.time;
+    }
+
+    function isValidPrivateInfo(data, userId) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt']) &&
+        data.keys().hasOnly(['uid', 'email', 'createdAt']) &&
+        data.uid == userId &&
+        isValidBoundedString(data.email, 3, 200) &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidBookmark(data, userId, projectId) {
+      return data.keys().hasAll(['projectId', 'projectSlug', 'projectName', 'userId', 'createdAt']) &&
+        data.keys().hasOnly(['projectId', 'projectSlug', 'projectName', 'userId', 'createdAt']) &&
+        data.userId == userId &&
+        data.projectId == projectId &&
+        isValidBoundedString(data.projectSlug, 2, 120) &&
+        isValidBoundedString(data.projectName, 1, 120) &&
+        data.createdAt == request.time;
+    }
+
+    function isValidReport(data) {
+      return data.keys().hasAll(['projectId', 'projectSlug', 'reporterUid', 'reason', 'details', 'status', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['projectId', 'projectSlug', 'reporterUid', 'reason', 'details', 'status', 'createdAt', 'updatedAt']) &&
+        isValidId(data.projectId) &&
+        isValidBoundedString(data.projectSlug, 2, 120) &&
+        isValidId(data.reporterUid) &&
+        data.reason in ['broken_link', 'stale_metadata', 'spam', 'misattribution', 'security_concern'] &&
+        isValidBoundedString(data.details, 5, 1000) &&
+        data.status in ['open', 'reviewed', 'resolved'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidClaim(data) {
+      return data.keys().hasAll(['projectId', 'projectSlug', 'claimantUid', 'verificationMethod', 'proofNote', 'status', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['projectId', 'projectSlug', 'claimantUid', 'verificationMethod', 'proofNote', 'status', 'createdAt', 'updatedAt']) &&
+        isValidId(data.projectId) &&
+        isValidBoundedString(data.projectSlug, 2, 120) &&
+        isValidId(data.claimantUid) &&
+        data.verificationMethod in ['github_repo', 'domain_dns', 'demo_meta'] &&
+        isValidBoundedString(data.proofNote, 5, 1000) &&
+        data.status in ['pending', 'approved', 'rejected'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidNewsletter(data) {
+      return data.keys().hasAll(['uid', 'email', 'preferredLanguage', 'createdAt']) &&
+        data.keys().hasOnly(['uid', 'email', 'preferredLanguage', 'createdAt']) &&
+        isValidId(data.uid) &&
+        isValidBoundedString(data.email, 3, 200) &&
+        data.preferredLanguage in ['ko', 'en'] &&
+        data.createdAt == request.time;
+    }
+
+    match /test/connection {
+      allow get: if true;
+    }
+
+    match /admins/{uid} {
+      allow get: if isSignedIn() && isValidId(uid) && request.auth.uid == uid;
+    }
+
+    match /projects/{projectId} {
+      allow get: if isValidId(projectId);
+      allow list: if true;
+      allow create: if isVerifiedUser() &&
+        isValidId(projectId) &&
+        isValidProjectCreate(incoming()) &&
+        incoming().ownerUid == request.auth.uid &&
+        incoming().verificationStatus in ['unverified', 'pending'] &&
+        incoming().likesCount == 0 &&
+        incoming().bookmarksCount == 0 &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser() &&
+        isValidId(projectId) &&
+        isValidProjectUpdate(incoming()) &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          isAdmin() ||
+          (
+            existing().ownerUid == request.auth.uid &&
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'name', 'tagline', 'taglineKo', 'description', 'descriptionKo',
+              'contentType', 'categories', 'techStack', 'developmentPlatform',
+              'hostingProvider', 'backendTech', 'country', 'language', 'license',
+              'pricingModel', 'liveDemoUrl', 'websiteUrl', 'githubRepo',
+              'githubUrl', 'thumbnailUrl', 'makerName', 'makerHandle',
+              'githubStars', 'githubForks', 'lastSyncedAt', 'provenanceSource',
+              'updatedAt'
+            ])
+          ) ||
+          (
+            incoming().diff(existing()).affectedKeys().hasOnly(['likesCount', 'updatedAt']) &&
+            (
+              (incoming().likesCount == existing().likesCount + 1 &&
+               existsAfter(/databases/$(database)/documents/projects/$(projectId)/likes/$(request.auth.uid))) ||
+              (incoming().likesCount == existing().likesCount - 1 &&
+               !existsAfter(/databases/$(database)/documents/projects/$(projectId)/likes/$(request.auth.uid)))
+            )
+          ) ||
+          (
+            incoming().diff(existing()).affectedKeys().hasOnly(['bookmarksCount', 'updatedAt']) &&
+            (
+              (incoming().bookmarksCount == existing().bookmarksCount + 1 &&
+               existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/bookmarks/$(projectId))) ||
+              (incoming().bookmarksCount == existing().bookmarksCount - 1 &&
+               !existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/bookmarks/$(projectId)))
+            )
+          )
+        );
+
+      allow delete: if isVerifiedUser() &&
+        isValidId(projectId) &&
+        (existing().ownerUid == request.auth.uid || isAdmin());
+
+      match /likes/{userId} {
+        allow get: if isSignedIn() && isValidId(projectId) && isValidId(userId) && (isOwner(userId) || isAdmin());
+        allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+        allow create: if isVerifiedUser() &&
+          isValidId(projectId) &&
+          isValidId(userId) &&
+          isOwner(userId) &&
+          isValidProjectLike(incoming(), projectId, userId) &&
+          exists(/databases/$(database)/documents/projects/$(projectId)) &&
+          getAfter(/databases/$(database)/documents/projects/$(projectId)).data.likesCount ==
+            get(/databases/$(database)/documents/projects/$(projectId)).data.likesCount + 1;
+        allow delete: if isVerifiedUser() &&
+          isValidId(projectId) &&
+          isValidId(userId) &&
+          isOwner(userId) &&
+          exists(/databases/$(database)/documents/projects/$(projectId)) &&
+          getAfter(/databases/$(database)/documents/projects/$(projectId)).data.likesCount ==
+            get(/databases/$(database)/documents/projects/$(projectId)).data.likesCount - 1;
+      }
+    }
+
+    match /users/{userId}/public/profile {
+      allow get: if isValidId(userId);
+      allow create: if isVerifiedUser() &&
+        isValidId(userId) &&
+        isOwner(userId) &&
+        isValidPublicProfile(incoming(), userId);
+      allow update: if isVerifiedUser() &&
+        isValidId(userId) &&
+        isOwner(userId) &&
+        isValidPublicProfile(incoming(), userId) &&
+        incoming().uid == existing().uid;
+    }
+
+    match /users/{userId}/private/info {
+      allow get: if isSignedIn() && isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow create: if isVerifiedUser() &&
+        isValidId(userId) &&
+        isOwner(userId) &&
+        isValidPrivateInfo(incoming(), userId) &&
+        incoming().createdAt == request.time;
+      allow update: if isVerifiedUser() &&
+        isValidId(userId) &&
+        isOwner(userId) &&
+        isValidPrivateInfo(incoming(), userId) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt;
+    }
+
+    match /users/{userId}/bookmarks/{projectId} {
+      allow get: if isSignedIn() && isValidId(userId) && isValidId(projectId) && isOwner(userId);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isVerifiedUser() &&
+        isValidId(userId) &&
+        isValidId(projectId) &&
+        isOwner(userId) &&
+        isValidBookmark(incoming(), userId, projectId);
+      allow delete: if isVerifiedUser() &&
+        isValidId(userId) &&
+        isValidId(projectId) &&
+        isOwner(userId);
+    }
+
+    match /reports/{reportId} {
+      allow get: if isSignedIn() && isValidId(reportId) && (existing().reporterUid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.reporterUid == request.auth.uid || isAdmin());
+      allow create: if isVerifiedUser() &&
+        isValidId(reportId) &&
+        isValidReport(incoming()) &&
+        incoming().reporterUid == request.auth.uid &&
+        incoming().status == 'open' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isAdmin() &&
+        isValidId(reportId) &&
+        isValidReport(incoming()) &&
+        existing().status != 'resolved' &&
+        incoming().reporterUid == existing().reporterUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+    }
+
+    match /ownershipClaims/{claimId} {
+      allow get: if isSignedIn() && isValidId(claimId) && (existing().claimantUid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.claimantUid == request.auth.uid || isAdmin());
+      allow create: if isVerifiedUser() &&
+        isValidId(claimId) &&
+        isValidClaim(incoming()) &&
+        incoming().claimantUid == request.auth.uid &&
+        incoming().status == 'pending' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isAdmin() &&
+        isValidId(claimId) &&
+        isValidClaim(incoming()) &&
+        existing().status == 'pending' &&
+        incoming().claimantUid == existing().claimantUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+    }
+
+    match /newsletterSubscribers/{subId} {
+      allow get: if isSignedIn() && isValidId(subId) && (existing().uid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isVerifiedUser() &&
+        isValidId(subId) &&
+        isValidNewsletter(incoming()) &&
+        incoming().uid == request.auth.uid;
+      allow delete: if isVerifiedUser() &&
+        isValidId(subId) &&
+        (existing().uid == request.auth.uid || isAdmin());
+    }
+  }
+}

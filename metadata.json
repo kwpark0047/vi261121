@@ -1,0 +1,6 @@
+{
+  "name": "VibeAtlas",
+  "description": "Global discovery and verification platform for vibe-coded apps, AI tools, MCP servers, AI skills, agents, templates, and open-source projects.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
