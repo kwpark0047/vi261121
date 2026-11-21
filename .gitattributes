@@ -1,0 +1,5 @@
+# Repo stores LF and checks out LF on every platform, regardless of the
+# machine's global core.autocrlf setting (this workspace mounts a Windows
+# drive, where autocrlf defaults can otherwise flip text files to CRLF).
+
+* text=auto eol=lf
