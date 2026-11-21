@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import {
   AlertTriangle,
   Bookmark,
@@ -37,6 +37,7 @@ import {
 } from '../lib/catalogEngine';
 import { sanitizeExternalUrl, ownershipClaimSchema, reportSubmissionSchema } from '../lib/validation';
 import { ProjectGrowthChart } from './ProjectGrowthChart';
+const GrowthChart = lazy(() => import('./ProjectGrowthChart').then((m) => ({ default: m.ProjectGrowthChart })));
 
 interface ProjectDetailModalProps {
   project: CatalogProject | null;
@@ -584,12 +585,14 @@ export function ProjectDetailModal({
           </div>
 
           {/* 14-Day Recharts Historical Growth Chart */}
-          <ProjectGrowthChart
-            project={project}
-            language={language}
-            isSyncing={isSyncing}
-            onSyncSingleGithub={onSyncSingleGithub}
-          />
+          <Suspense fallback={null}>
+            <GrowthChart
+              project={project}
+              language={language}
+              isSyncing={isSyncing}
+              onSyncSingleGithub={onSyncSingleGithub}
+            />
+          </Suspense>
 
           {/* Related Projects */}
           {related.length > 0 && (

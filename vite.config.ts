@@ -36,6 +36,16 @@ export default defineConfig(() => {
         '@': path.resolve(rootDir, '.'),
       },
     },
+    // Build-size guardrail: route pages and the growth chart are code-split
+    // (dynamic imports in App.tsx / ProjectDetailModal.tsx). The remaining
+    // large chunks are the shared framework + Firebase runtime (loaded once
+    // per route) and the on-demand recharts bundle (loaded only when a
+    // project modal with growth history opens); 500 kB is a generic
+    // heuristic aimed at monolithic bundles, so allow documented headroom
+    // rather than treating those chunks as failures.
+    build: {
+      chunkSizeWarningLimit: 900,
+    },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify—file watching is disabled to prevent flickering during agent edits.

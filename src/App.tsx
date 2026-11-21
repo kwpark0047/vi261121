@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { onAuthStateChanged, signInWithPopup, signOut, type User } from 'firebase/auth';
 import { CURATED_SEED_PROJECTS } from './data/seedCatalog';
 import { UI_STRINGS } from './data/i18n';
@@ -31,11 +31,14 @@ import type {
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TopNav } from './components/TopNav';
 import { WorkspaceBar } from './components/WorkspaceBar';
-import { HomePage } from './components/HomePage';
-import { DiscoverPage } from './components/DiscoverPage';
-import { SubmitProjectPage } from './components/SubmitProjectPage';
-import { MakerDashboardPage } from './components/MakerDashboardPage';
-import { ProjectDetailModal } from './components/ProjectDetailModal';
+
+// Route-level pages and the detail modal are code-split so that the initial
+// bundle stays small; each is loaded on demand inside a Suspense boundary.
+const HomePage = lazy(() => import('./components/HomePage').then((m) => ({ default: m.HomePage })));
+const DiscoverPage = lazy(() => import('./components/DiscoverPage').then((m) => ({ default: m.DiscoverPage })));
+const SubmitProjectPage = lazy(() => import('./components/SubmitProjectPage').then((m) => ({ default: m.SubmitProjectPage })));
+const MakerDashboardPage = lazy(() => import('./components/MakerDashboardPage').then((m) => ({ default: m.MakerDashboardPage })));
+const ProjectDetailModal = lazy(() => import('./components/ProjectDetailModal').then((m) => ({ default: m.ProjectDetailModal })));
 
 const STORAGE_LANG_KEY = 'vibeatlas_lang_v1';
 const STORAGE_THEME_KEY = 'vibeatlas_theme_v1';
@@ -401,70 +404,78 @@ export default function App() {
 
         <main className="flex-1">
           {activePage === 'home' && (
-            <HomePage
-              language={language}
-              projects={allProjects}
-              likedIds={guestLikes}
-              bookmarkedIds={effectiveBookmarks}
-              user={user}
-              isSyncingBatch={isSyncingBatch}
-              onSyncAllGithub={() => void handleSyncAllGithub()}
-              onOpenDetail={(p) => setSelectedSlug(p.slug)}
-              onToggleLike={(p) => void handleToggleLike(p)}
-              onToggleBookmark={(p) => void handleToggleBookmark(p)}
-              onSearchAndDiscover={handleSearchAndDiscover}
-              onNavigate={setActivePage}
-              onSignIn={() => void handleSignIn()}
-              onSubscribeNewsletter={async (email) => {
-                if (!user) throw new Error('Sign in required');
-                await subscribeNewsletterInFirestore(user, email, language);
-              }}
-            />
+            <Suspense fallback={null}>
+              <HomePage
+                language={language}
+                projects={allProjects}
+                likedIds={guestLikes}
+                bookmarkedIds={effectiveBookmarks}
+                user={user}
+                isSyncingBatch={isSyncingBatch}
+                onSyncAllGithub={() => void handleSyncAllGithub()}
+                onOpenDetail={(p) => setSelectedSlug(p.slug)}
+                onToggleLike={(p) => void handleToggleLike(p)}
+                onToggleBookmark={(p) => void handleToggleBookmark(p)}
+                onSearchAndDiscover={handleSearchAndDiscover}
+                onNavigate={setActivePage}
+                onSignIn={() => void handleSignIn()}
+                onSubscribeNewsletter={async (email) => {
+                  if (!user) throw new Error('Sign in required');
+                  await subscribeNewsletterInFirestore(user, email, language);
+                }}
+              />
+            </Suspense>
           )}
 
           {activePage === 'discover' && (
-            <DiscoverPage
-              language={language}
-              projects={allProjects}
-              filters={filters}
-              isLoading={isLoadingCatalog}
-              likedIds={guestLikes}
-              bookmarkedIds={effectiveBookmarks}
-              onUpdateFilters={handleUpdateFilters}
-              onResetFilters={handleResetFilters}
-              onOpenDetail={(p) => setSelectedSlug(p.slug)}
-              onToggleLike={(p) => void handleToggleLike(p)}
-              onToggleBookmark={(p) => void handleToggleBookmark(p)}
-            />
+            <Suspense fallback={null}>
+              <DiscoverPage
+                language={language}
+                projects={allProjects}
+                filters={filters}
+                isLoading={isLoadingCatalog}
+                likedIds={guestLikes}
+                bookmarkedIds={effectiveBookmarks}
+                onUpdateFilters={handleUpdateFilters}
+                onResetFilters={handleResetFilters}
+                onOpenDetail={(p) => setSelectedSlug(p.slug)}
+                onToggleLike={(p) => void handleToggleLike(p)}
+                onToggleBookmark={(p) => void handleToggleBookmark(p)}
+              />
+            </Suspense>
           )}
 
           {activePage === 'submit' && (
-            <SubmitProjectPage
-              language={language}
-              user={user}
-              onSignIn={() => void handleSignIn()}
-              onCreateProject={handleCreateProject}
-            />
+            <Suspense fallback={null}>
+              <SubmitProjectPage
+                language={language}
+                user={user}
+                onSignIn={() => void handleSignIn()}
+                onCreateProject={handleCreateProject}
+              />
+            </Suspense>
           )}
 
           {activePage === 'maker' && (
-            <MakerDashboardPage
-              language={language}
-              user={user}
-              projects={allProjects}
-              likedIds={guestLikes}
-              bookmarkedIds={effectiveBookmarks}
-              reports={userReports}
-              claims={userClaims}
-              syncingProjectId={syncingProjectId}
-              onSignIn={() => void handleSignIn()}
-              onNavigate={setActivePage}
-              onOpenDetail={(p) => setSelectedSlug(p.slug)}
-              onToggleLike={(p) => void handleToggleLike(p)}
-              onToggleBookmark={(p) => void handleToggleBookmark(p)}
-              onSyncProject={(p) => void handleSyncSingleGithub(p)}
-              onDeleteProject={deleteFirestoreProject}
-            />
+            <Suspense fallback={null}>
+              <MakerDashboardPage
+                language={language}
+                user={user}
+                projects={allProjects}
+                likedIds={guestLikes}
+                bookmarkedIds={effectiveBookmarks}
+                reports={userReports}
+                claims={userClaims}
+                syncingProjectId={syncingProjectId}
+                onSignIn={() => void handleSignIn()}
+                onNavigate={setActivePage}
+                onOpenDetail={(p) => setSelectedSlug(p.slug)}
+                onToggleLike={(p) => void handleToggleLike(p)}
+                onToggleBookmark={(p) => void handleToggleBookmark(p)}
+                onSyncProject={(p) => void handleSyncSingleGithub(p)}
+                onDeleteProject={deleteFirestoreProject}
+              />
+            </Suspense>
           )}
         </main>
 
@@ -475,29 +486,31 @@ export default function App() {
           </div>
         </footer>
 
-        <ProjectDetailModal
-          project={selectedProject}
-          allProjects={allProjects}
-          language={language}
-          user={user}
-          isLiked={selectedProject ? guestLikes.has(selectedProject.id) : false}
-          isBookmarked={selectedProject ? effectiveBookmarks.has(selectedProject.id) : false}
-          isSyncing={Boolean(selectedProject && syncingProjectId === selectedProject.id)}
-          onClose={() => setSelectedSlug(null)}
-          onSelectProject={(p) => setSelectedSlug(p.slug)}
-          onToggleLike={(p) => void handleToggleLike(p)}
-          onToggleBookmark={(p) => void handleToggleBookmark(p)}
-          onSyncSingleGithub={(p) => void handleSyncSingleGithub(p)}
-          onSubmitReport={async (proj, reason, details) => {
-            if (!user) throw new Error('Sign in required');
-            await submitReportToFirestore(user, proj, reason, details);
-          }}
-          onSubmitClaim={async (proj, method, proof) => {
-            if (!user) throw new Error('Sign in required');
-            await submitOwnershipClaimToFirestore(user, proj, method, proof);
-          }}
-          onSignIn={() => void handleSignIn()}
-        />
+        <Suspense fallback={null}>
+          <ProjectDetailModal
+            project={selectedProject}
+            allProjects={allProjects}
+            language={language}
+            user={user}
+            isLiked={selectedProject ? guestLikes.has(selectedProject.id) : false}
+            isBookmarked={selectedProject ? effectiveBookmarks.has(selectedProject.id) : false}
+            isSyncing={Boolean(selectedProject && syncingProjectId === selectedProject.id)}
+            onClose={() => setSelectedSlug(null)}
+            onSelectProject={(p) => setSelectedSlug(p.slug)}
+            onToggleLike={(p) => void handleToggleLike(p)}
+            onToggleBookmark={(p) => void handleToggleBookmark(p)}
+            onSyncSingleGithub={(p) => void handleSyncSingleGithub(p)}
+            onSubmitReport={async (proj, reason, details) => {
+              if (!user) throw new Error('Sign in required');
+              await submitReportToFirestore(user, proj, reason, details);
+            }}
+            onSubmitClaim={async (proj, method, proof) => {
+              if (!user) throw new Error('Sign in required');
+              await submitOwnershipClaimToFirestore(user, proj, method, proof);
+            }}
+            onSignIn={() => void handleSignIn()}
+          />
+        </Suspense>
       </div>
     </ErrorBoundary>
   );
