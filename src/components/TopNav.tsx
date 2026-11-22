@@ -18,6 +18,7 @@ export function TopNav({ language, activePage, onNavigate }: TopNavProps) {
     { id: 'discover', label: copy.discover },
     { id: 'makers', label: copy.makers },
     { id: 'submit', label: copy.submit },
+    { id: 'github-stars', label: copy.githubStars },
   ].map((item) => ({
     id: (item.id === 'makers' ? 'maker' : item.id) as ActivePage,
     label: item.label,

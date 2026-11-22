@@ -20,6 +20,7 @@ export const UI_STRINGS: Record<
       discover: string;
       makers: string;
       submit: string;
+      githubStars: string;
       primaryCta: string;
     };
     workspace: {
@@ -251,6 +252,7 @@ export const UI_STRINGS: Record<
       discover: '탐색',
       makers: '메이커',
       submit: '등록하기',
+      githubStars: 'GitHub 스타',
       primaryCta: '프로젝트 등록',
     },
     workspace: {
@@ -485,6 +487,7 @@ export const UI_STRINGS: Record<
       discover: 'Discover',
       makers: 'Makers',
       submit: 'Submit',
+      githubStars: 'GitHub Stars',
       primaryCta: 'Submit Project',
     },
     workspace: {

@@ -496,6 +496,21 @@ export default function App() {
               />
             </Suspense>
           )}
+
+          {activePage === 'github-stars' && (
+            <Suspense fallback={null}>
+              <div className="min-h-screen p-8">
+                <p className="text-center text-lg">
+                  {language === 'ko' ? 'GitHub 스타 페이지' : 'GitHub Stars Page'}
+                </p>
+                <p className="mt-4">
+                  {language === 'ko'
+                    ? '준비 중입니다. Discover 페이지에서 GitHub 별수 정렬을 이용해 보세요.'
+                    : 'Coming soon. Try the GitHub stars sort on Discover page.'}
+                </p>
+              </div>
+            </Suspense>
+          )}
         </main>
 
         <footer className="border-t border-slate-200 bg-white py-8 dark:border-slate-800 dark:bg-slate-950">

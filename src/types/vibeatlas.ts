@@ -65,7 +65,7 @@ export type SortOption =
 
 export type ViewMode = 'grid' | 'list';
 
-export type ActivePage = 'home' | 'discover' | 'maker' | 'submit' | 'admin';
+export type ActivePage = 'home' | 'discover' | 'maker' | 'submit' | 'admin' | 'github-stars';
 
 export interface DailySignalPoint {
   date: string;
