@@ -8,7 +8,8 @@ import {
   GitFork,
   Heart,
   HelpCircle,
-  Maximize,
+  Maximize2,
+  Minimize2,
   RefreshCw,
   ShieldCheck,
   Star,
@@ -39,8 +40,6 @@ import {
 import { sanitizeExternalUrl, ownershipClaimSchema, reportSubmissionSchema } from '../lib/validation';
 import { ProjectGrowthChart } from './ProjectGrowthChart';
 const GrowthChart = lazy(() => import('./ProjectGrowthChart').then((m) => ({ default: m.ProjectGrowthChart })));
-
-const IS_MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 interface ProjectDetailModalProps {
   project: CatalogProject | null;
@@ -95,8 +94,7 @@ export function ProjectDetailModal({
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [isFullscreen, setIsFullscreen] =
-    useState<'normal' | 'fullscreen'>('normal');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (!project) return;
@@ -104,10 +102,16 @@ export function ProjectDetailModal({
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [project, onClose]);
 
   useEffect(() => {
+    setIsFullscreen(false);
     setActiveActionForm('none');
     setFormFeedback(null);
     setFormError(null);
@@ -193,7 +197,9 @@ export function ProjectDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-3 sm:p-6"
+      className={`fixed inset-0 z-50 flex justify-center bg-slate-950/60 ${
+        isFullscreen ? 'items-stretch p-0' : 'items-stretch p-0 sm:items-center sm:p-3 lg:p-6'
+      }`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="detail-modal-title"
@@ -201,9 +207,15 @@ export function ProjectDetailModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950 max-w-4xl overflow-y-auto ${isFullscreen === 'fullscreen' ? 'h-full' : IS_MOBILE ? 'h-full' : 'max-h-[92vh]' } transition-all duration-300 ease-out">
+      <div
+        className={`flex w-full flex-col overflow-hidden border border-slate-200 bg-white shadow-2xl transition-all duration-300 ease-out dark:border-slate-800 dark:bg-slate-950 ${
+          isFullscreen
+            ? 'h-dvh max-h-none max-w-none rounded-none border-0'
+            : 'h-dvh max-h-none max-w-none rounded-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:max-w-4xl sm:rounded-2xl lg:max-h-[92dvh]'
+        }`}
+      >
         {/* Top Modal Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95 sm:gap-4 sm:px-6 sm:py-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
               <span>{CONTENT_TYPE_LABELS[language][project.contentType]}</span>
@@ -220,12 +232,24 @@ export function ProjectDetailModal({
             </div>
             <h2
               id="detail-modal-title"
-              className="mt-1 truncate text-xl font-bold text-slate-900 dark:text-white"
+              className="mt-1 truncate text-lg font-bold text-slate-900 dark:text-white sm:text-xl"
             >
               {project.name}
             </h2>
           </div>
 
+          <button
+            type="button"
+            aria-label={isFullscreen ? copy.fullscreenExit : copy.fullscreenEnter}
+            onClick={() => setIsFullscreen((prev) => !prev)}
+            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/50 sm:inline-flex"
+          >
+            {isFullscreen ? (
+              <Minimize2 className="h-4 w-4" />
+            ) : (
+              <Maximize2 className="h-4 w-4" />
+            )}
+          </button>
           <button
             type="button"
             aria-label={copy.close}
@@ -234,19 +258,9 @@ export function ProjectDetailModal({
           >
             <X className="h-4 w-4" />
           </button>
-          {!IS_MOBILE && (
-            <button
-              type="button"
-              aria-label={copy.fullscreenExit}
-              onClick={() => setIsFullscreen((prev) => (prev ? 'normal' : 'fullscreen'))}
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/50"
-            >
-              <Maximize className="h-4 w-4" />
-            </button>
-          )}
         </div>
 
-        <div className="space-y-8 p-6">
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain p-4 sm:space-y-8 sm:p-6">
           {/* Concise & Full Description */}
           <div>
             <p className="text-base font-medium text-slate-800 dark:text-slate-200">{tagline}</p>

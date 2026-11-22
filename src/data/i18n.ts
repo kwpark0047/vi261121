@@ -105,6 +105,8 @@ export const UI_STRINGS: Record<
       internalLikes: string;
       internalBookmarks: string;
       notSynced: string;
+      trending: string;
+      trendingTooltip: string;
       staleLabel: string;
       verifiedLabel: string;
       pendingLabel: string;
@@ -116,6 +118,7 @@ export const UI_STRINGS: Record<
     };
     detail: {
       close: string;
+      fullscreenEnter: string;
       fullscreenExit: string;
       externalLinksTitle: string;
       internalActionsTitle: string;
@@ -244,6 +247,47 @@ export const UI_STRINGS: Record<
       unknownError: string;
       dismissError: string;
     };
+    githubStarsPage: {
+      title: string;
+      subtitle: string;
+      refreshing: string;
+      refreshButton: string;
+      searchPlaceholder: string;
+      allLanguagesOption: string;
+      presetAll: string;
+      presetWebApps: string;
+      presetAiAgents: string;
+      presetTypescript: string;
+      presetPython: string;
+      presetRust: string;
+      presetGo: string;
+      kpiRankedCount: string;
+      kpiTopStars: string;
+      kpiMedianStars: string;
+      kpiLastUpdated: string;
+      cachedFallbackBadge: string;
+      translatingDescriptions: string;
+      showingCountLabel: string;
+      translationErrorNotice: string;
+      retryButton: string;
+      errorTitle: string;
+      rateLimitResetPrefix: string;
+      emptyTitle: string;
+      emptyBody: string;
+      emptyFilteredTitle: string;
+      emptyFilteredBody: string;
+      resetFilterButton: string;
+      colRank: string;
+      colRepository: string;
+      colLanguageLicense: string;
+      colForks: string;
+      colStars: string;
+      colActions: string;
+      openInVibeAtlas: string;
+      openGithub: string;
+      showOriginal: string;
+      showTranslated: string;
+    };
   }
 > = {
   ko: {
@@ -341,6 +385,8 @@ export const UI_STRINGS: Record<
       internalLikes: '좋아요',
       internalBookmarks: '북마크',
       notSynced: '미동기화',
+      trending: '트렌딩',
+      trendingTooltip: '최근 7일간 GitHub 스타가 가장 많이 증가한 프로젝트',
       staleLabel: '동기화 오래됨',
       verifiedLabel: '검증됨',
       pendingLabel: '검증 대기',
@@ -352,6 +398,7 @@ export const UI_STRINGS: Record<
     },
     detail: {
       close: '닫기',
+      fullscreenEnter: '전체화면으로 보기',
       fullscreenExit: '풀스크린 종료',
       externalLinksTitle: '외부 링크 (외부 사이트로 이동)',
       internalActionsTitle: 'W-Vibe 내부 액션',
@@ -480,6 +527,47 @@ export const UI_STRINGS: Record<
       unknownError: '음성 인식을 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
       dismissError: '닫기',
     },
+    githubStarsPage: {
+      title: 'GitHub 스타 순위',
+      subtitle: '공개 GitHub 저장소를 스타 수 기준으로 정렬해 보여드립니다. 외부 GitHub 지표로, 앱 내부 활동 지표와는 별도로 집계됩니다.',
+      refreshing: '새로 고치는 중…',
+      refreshButton: '새로 고침',
+      searchPlaceholder: '저장소 또는 설명 검색',
+      allLanguagesOption: '모든 언어',
+      presetAll: '전체',
+      presetWebApps: '웹앱',
+      presetAiAgents: 'AI 에이전트',
+      presetTypescript: '타입스크립트',
+      presetPython: '파이썬',
+      presetRust: '러스트',
+      presetGo: 'Go',
+      kpiRankedCount: '순위 포함 저장소',
+      kpiTopStars: '1위 스타',
+      kpiMedianStars: '중간값 스타',
+      kpiLastUpdated: '마지막 업데이트',
+      cachedFallbackBadge: '저장된 캐시 표시 중',
+      translatingDescriptions: '설명 번역 중',
+      showingCountLabel: '개 표시',
+      translationErrorNotice: '설명 번역을 일시 중지했습니다.',
+      retryButton: '다시 시도',
+      errorTitle: '랭킹을 불러오지 못했습니다',
+      rateLimitResetPrefix: '제한 초기화 예정:',
+      emptyTitle: '표시할 저장소가 없습니다',
+      emptyBody: '잠시 후 다시 시도하거나 새로 고침해 주세요.',
+      emptyFilteredTitle: '조건에 맞는 저장소가 없습니다',
+      emptyFilteredBody: '검색어나 언어 필터를 조정해 보세요.',
+      resetFilterButton: '필터 초기화',
+      colRank: '순위',
+      colRepository: '저장소',
+      colLanguageLicense: '언어 / 라이선스',
+      colForks: '포크',
+      colStars: '스타',
+      colActions: '동작',
+      openInVibeAtlas: 'VibeAtlas에서 열기',
+      openGithub: 'GitHub에서 열기',
+      showOriginal: '원어 보기',
+      showTranslated: '번역 보기',
+    },
   },
   en: {
     nav: {
@@ -576,6 +664,8 @@ export const UI_STRINGS: Record<
       internalLikes: 'Likes',
       internalBookmarks: 'Bookmarks',
       notSynced: 'Not synced',
+      trending: 'Trending',
+      trendingTooltip: 'Top GitHub star gains over the last 7 days',
       staleLabel: 'Stale sync',
       verifiedLabel: 'Verified',
       pendingLabel: 'Pending',
@@ -587,6 +677,7 @@ export const UI_STRINGS: Record<
     },
     detail: {
       close: 'Close',
+      fullscreenEnter: 'View Fullscreen',
       fullscreenExit: 'Exit Fullscreen',
       externalLinksTitle: 'External Links (Leaves W-Vibe)',
       internalActionsTitle: 'W-Vibe Actions',
@@ -714,6 +805,47 @@ export const UI_STRINGS: Record<
       networkError: 'Voice recognition network error. Check your connection and try again.',
       unknownError: 'Could not complete voice recognition. Please try again.',
       dismissError: 'Dismiss',
+    },
+    githubStarsPage: {
+      title: 'GitHub Stars Ranking',
+      subtitle: 'Public GitHub repositories ranked by stars. External GitHub metrics, tracked separately from in-app engagement.',
+      refreshing: 'Refreshing…',
+      refreshButton: 'Refresh',
+      searchPlaceholder: 'Search repositories or descriptions',
+      allLanguagesOption: 'All languages',
+      presetAll: 'All',
+      presetWebApps: 'Web Apps',
+      presetAiAgents: 'AI Agents',
+      presetTypescript: 'TypeScript',
+      presetPython: 'Python',
+      presetRust: 'Rust',
+      presetGo: 'Go',
+      kpiRankedCount: 'Ranked Repositories',
+      kpiTopStars: 'Top Stars',
+      kpiMedianStars: 'Median Stars',
+      kpiLastUpdated: 'Last Updated',
+      cachedFallbackBadge: 'Showing cached data',
+      translatingDescriptions: 'Translating descriptions',
+      showingCountLabel: 'shown',
+      translationErrorNotice: 'Description translation paused.',
+      retryButton: 'Retry',
+      errorTitle: 'Could not load the ranking',
+      rateLimitResetPrefix: 'Rate limit resets around:',
+      emptyTitle: 'No repositories to show',
+      emptyBody: 'Try again later or refresh the page.',
+      emptyFilteredTitle: 'No repositories match these filters',
+      emptyFilteredBody: 'Try adjusting the search or language filter.',
+      resetFilterButton: 'Reset filters',
+      colRank: 'Rank',
+      colRepository: 'Repository',
+      colLanguageLicense: 'Language / License',
+      colForks: 'Forks',
+      colStars: 'Stars',
+      colActions: 'Actions',
+      openInVibeAtlas: 'Open in VibeAtlas',
+      openGithub: 'Open on GitHub',
+      showOriginal: 'Show original',
+      showTranslated: 'Show translation',
     },
   },
 };

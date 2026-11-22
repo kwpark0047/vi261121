@@ -40,6 +40,7 @@ import {
 } from '../lib/catalogEngine';
 import { useVoiceSearch } from '../hooks/useVoiceSearch';
 import { ProjectCard } from './ProjectCard';
+import { selectTrendingProjects } from '../lib/starHistory';
 import { VoiceSearchButton, VoiceSearchFeedback } from './VoiceSearchButton';
 
 interface DiscoverPageProps {
@@ -102,6 +103,13 @@ export function DiscoverPage({
   const paginated = useMemo(
     () => paginateProjects(sorted, filters.page, 9),
     [sorted, filters.page]
+  );
+
+  // "Trending" = top star gainers over the rolling window, evaluated on the
+  // currently filtered set so the badge tracks what the visitor is browsing.
+  const trendingIds = useMemo(
+    () => new Set(selectTrendingProjects(filtered).map((project) => project.id)),
+    [filtered]
   );
 
   const renderFilterForm = () => (
@@ -563,6 +571,7 @@ export function DiscoverPage({
                   viewMode={filters.view}
                   isLiked={likedIds.has(proj.id)}
                   isBookmarked={bookmarkedIds.has(proj.id)}
+                  trending={trendingIds.has(proj.id)}
                   onOpenDetail={onOpenDetail}
                   onToggleLike={onToggleLike}
                   onToggleBookmark={onToggleBookmark}

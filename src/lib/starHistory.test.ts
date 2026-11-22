@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import type { CatalogProject } from '../types/vibeatlas.ts';
 import {
   buildHistoricalGrowthSeries,
+  getStarGainInWindow,
   loadStarSnapshots,
   recordStarSnapshot,
+  selectTrendingProjects,
 } from './starHistory.ts';
 
 function makeMemoryStorage(): Storage {
@@ -140,4 +142,42 @@ test('recordStarSnapshot and loadStarSnapshots derive multi-day deltas cleanly',
   assert.equal(series.totalDelta14d, 45);
   assert.equal(series.points[11]?.githubStars, 1000);
   assert.equal(series.points[13]?.githubStars, 1045);
+});
+
+test('getStarGainInWindow sums only the trailing calendar days (clamped at zero)', () => {
+  const now = new Date('2026-11-22T12:00:00.000Z');
+  const project = makeProject({
+    historicalSignals: [
+      { date: '2026-11-14', githubStarsDelta: 10, internalLikes: 0, internalBookmarks: 0 },
+      { date: '2026-11-16', githubStarsDelta: 5, internalLikes: 0, internalBookmarks: 0 },
+      { date: '2026-11-21', githubStarsDelta: -3, internalLikes: 0, internalBookmarks: 0 },
+      { date: '2026-11-22', githubStarsDelta: 7, internalLikes: 0, internalBookmarks: 0 },
+      { date: '2026-11-23', githubStarsDelta: 100, internalLikes: 0, internalBookmarks: 0 },
+    ],
+  });
+
+  assert.equal(getStarGainInWindow(project, 7, now), 12);
+  assert.equal(getStarGainInWindow(project, 1, now), 7);
+  assert.equal(getStarGainInWindow(makeProject(), 7, now), 0);
+});
+
+test('selectTrendingProjects ranks by window gain, skips zero-gain, breaks ties deterministically', () => {
+  const now = new Date('2026-11-22T12:00:00.000Z');
+  const signal = (delta: number) => [
+    { date: '2026-11-20', githubStarsDelta: delta, internalLikes: 0, internalBookmarks: 0 },
+  ];
+  const alpha = makeProject({ id: 'alpha', name: 'Alpha', githubStars: 10, historicalSignals: signal(5) });
+  const beta = makeProject({ id: 'beta', name: 'Beta', githubStars: 20, historicalSignals: signal(5) });
+  const gamma = makeProject({ id: 'gamma', name: 'Gamma', githubStars: 30, historicalSignals: signal(3) });
+  const deltaOnly = makeProject({ id: 'delta', name: 'Delta', githubStars: 40 });
+
+  assert.deepEqual(
+    selectTrendingProjects([gamma, deltaOnly, beta, alpha], { now }).map((p) => p.id),
+    ['beta', 'alpha', 'gamma'],
+  );
+  assert.deepEqual(
+    selectTrendingProjects([alpha, beta, gamma, deltaOnly], { now, limit: 2 }).map((p) => p.id),
+    ['beta', 'alpha'],
+  );
+  assert.deepEqual(selectTrendingProjects([], { now }), []);
 });

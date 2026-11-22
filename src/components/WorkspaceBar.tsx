@@ -113,20 +113,10 @@ export function WorkspaceBar({
             </span>
           </button>
 
-          {/* User settings/profile button - appears when logged in; admin gets ShieldCheck badge */}
+          {/* Admin navigation is shown above; other signed-in users get a profile button. */}
           {user ? (
             <div className="flex items-center gap-2">
-              {isAdmin ? (
-                <button
-                  type="button"
-                  onClick={() => onNavigate('admin')}
-                  className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-800 transition-colors hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/50"
-                  aria-label={isAdmin ? 'Admin dashboard' : 'Profile'}
-                >
-                  <ShieldCheck className="h-3 w-3" />
-                  <span className="hidden sm:inline">{isAdmin ? ADMIN_STRINGS[language].navLabel : '내 프로필'}</span>
-                </button>
-              ) : (
+              {!isAdmin && (
                 <button
                   type="button"
                   onClick={() => onNavigate('maker')}

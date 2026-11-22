@@ -2,6 +2,12 @@ import type { CatalogProject, DailySignalPoint } from '../types/vibeatlas';
 
 export const STAR_SNAPSHOTS_STORAGE_KEY = 'vibeatlas_star_snapshots_v1';
 
+/** Rolling window (calendar days) used for the Discover "trending" star badge. */
+export const TRENDING_WINDOW_DAYS = 7;
+
+/** Maximum number of projects that may carry the trending badge at once. */
+export const TRENDING_BADGE_LIMIT = 3;
+
 export interface StarGrowthPoint {
   date: string;
   shortDate: string;
@@ -113,6 +119,64 @@ function buildFallbackSignals(project: CatalogProject): DailySignalPoint[] {
     });
   }
   return out;
+}
+
+/**
+ * Calendar-day window (inclusive at both ends) used to surface "trending"
+ * projects: how many GitHub stars a listing gained within the last `days`
+ * days, relative to `now`. Negative deltas are clamped at zero, matching the
+ * growth series semantics (a star count never decreases).
+ */
+export function getStarGainInWindow(
+  project: CatalogProject,
+  days: number = TRENDING_WINDOW_DAYS,
+  now: Date = new Date()
+): number {
+  const windowDays =
+    Number.isFinite(days) && days >= 1 ? Math.floor(days) : TRENDING_WINDOW_DAYS;
+  const reference = Number.isNaN(now.getTime()) ? new Date() : now;
+  const today = toIsoDateDay(reference.toISOString()) ?? '';
+  const windowStart = toIsoDateDay(
+    new Date(reference.getTime() - (windowDays - 1) * 86_400_000).toISOString()
+  );
+
+  if (!windowStart || !today) return 0;
+
+  const series = buildHistoricalGrowthSeries(project);
+  let gain = 0;
+  for (const point of series.points) {
+    if (point.date < windowStart || point.date > today) continue;
+    gain += Math.max(0, Number(point.githubStarsDelta) || 0);
+  }
+  return gain;
+}
+
+/**
+ * Ranking helper for "trending" badges: projects with star gains inside the
+ * window, highest gain first. Ties break on total stars, then name so the
+ * badge set is stable across renders.
+ */
+export interface TrendingSelectionOptions {
+  windowDays?: number;
+  limit?: number;
+  now?: Date;
+}
+
+export function selectTrendingProjects(
+  projects: readonly CatalogProject[],
+  options: TrendingSelectionOptions = {}
+): CatalogProject[] {
+  const { windowDays, limit = TRENDING_BADGE_LIMIT, now } = options;
+  return projects
+    .map((project) => ({ project, gain: getStarGainInWindow(project, windowDays, now) }))
+    .filter((entry) => entry.gain > 0)
+    .sort((a, b) => {
+      if (b.gain !== a.gain) return b.gain - a.gain;
+      if (b.project.githubStars !== a.project.githubStars) return b.project.githubStars - a.project.githubStars;
+      return a.project.name < b.project.name ? -1 : a.project.name > b.project.name ? 1 : 0;
+    })
+    .slice(0, Math.max(0, limit))
+    .map((entry) => entry.project);
 }
 
 export function buildHistoricalGrowthSeries(

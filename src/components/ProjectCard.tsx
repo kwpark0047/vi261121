@@ -8,6 +8,7 @@ import {
   Heart,
   HelpCircle,
   Star,
+  TrendingUp,
 } from 'lucide-react';
 import type { AppLanguage, CatalogProject, ViewMode } from '../types/vibeatlas';
 import {
@@ -30,6 +31,8 @@ interface ProjectCardProps {
   viewMode?: ViewMode;
   isLiked: boolean;
   isBookmarked: boolean;
+  /** Set by Discover when the listing is among the top star gainers of the week. */
+  trending?: boolean;
   onOpenDetail: (project: CatalogProject) => void;
   onToggleLike: (project: CatalogProject) => void;
   onToggleBookmark: (project: CatalogProject) => void;
@@ -41,6 +44,7 @@ export function ProjectCard({
   viewMode = 'grid',
   isLiked,
   isBookmarked,
+  trending = false,
   onOpenDetail,
   onToggleLike,
   onToggleBookmark,
@@ -126,15 +130,26 @@ export function ProjectCard({
           </span>
         </div>
 
-        <h3 className="mt-2 text-base font-semibold leading-snug text-slate-900 dark:text-white">
-          <button
-            type="button"
-            onClick={() => onOpenDetail(project)}
-            className="text-left hover:text-blue-700 hover:underline dark:hover:text-blue-400"
-          >
-            {project.name}
-          </button>
-        </h3>
+        <div className="mt-2 flex items-center gap-2">
+          <h3 className="text-base font-semibold leading-snug text-slate-900 dark:text-white">
+            <button
+              type="button"
+              onClick={() => onOpenDetail(project)}
+              className="text-left hover:text-blue-700 hover:underline dark:hover:text-blue-400"
+            >
+              {project.name}
+            </button>
+          </h3>
+          {trending && (
+            <span
+              title={copy.trendingTooltip}
+              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+            >
+              <TrendingUp className="h-3 w-3" aria-hidden="true" />
+              {copy.trending}
+            </span>
+          )}
+        </div>
 
         <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
           {tagline}
