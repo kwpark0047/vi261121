@@ -5,11 +5,13 @@ import {
   validateProjectSubmissionInput,
   type ProjectSubmissionInput,
 } from './validation.ts';
+import { PLATFORM_CATEGORIES, PLATFORM_LABELS } from '../data/i18n.ts';
+import type { DevelopmentPlatform } from '../types/vibeatlas.ts';
 
 function createValidInput(): ProjectSubmissionInput {
   return {
-    slug: 'vibeatlas-mcp-ab12',
-    name: 'VibeAtlas MCP Bridge',
+    slug: 'w-vibe-mcp-ab12',
+    name: 'W-Vibe MCP Bridge',
     tagline: 'Verified MCP server bridge for Korean and English tooling.',
     taglineKo: '한영 도구 연동을 위한 검증된 MCP 서버 브리지',
     description:
@@ -27,7 +29,7 @@ function createValidInput(): ProjectSubmissionInput {
     pricingModel: 'open_source',
     liveDemoUrl: 'https://demo.example.com',
     websiteUrl: 'https://example.com',
-    githubUrl: 'https://github.com/example/vibeatlas-mcp',
+    githubUrl: 'https://github.com/example/w-vibe-mcp',
     makerName: 'Seoul Builder',
     makerHandle: '@seoulbuilder',
   };
@@ -35,7 +37,7 @@ function createValidInput(): ProjectSubmissionInput {
 
 test('isSafeHttpUrl permits empty or http/https URLs and rejects malformed or unsafe schemes', () => {
   assert.equal(isSafeHttpUrl(''), true);
-  assert.equal(isSafeHttpUrl('https://vibeatlas.dev/demo'), true);
+  assert.equal(isSafeHttpUrl('https://w-vibe.dev/demo'), true);
   assert.equal(isSafeHttpUrl('http://localhost:3000'), true);
   assert.equal(isSafeHttpUrl('not-a-valid-url'), false);
   assert.equal(isSafeHttpUrl('https://missing-tld'), false);
@@ -46,6 +48,25 @@ test('isSafeHttpUrl permits empty or http/https URLs and rejects malformed or un
 test('validateProjectSubmissionInput passes for valid submission input', () => {
   const result = validateProjectSubmissionInput(createValidInput(), 'en');
   assert.equal(result.success, true);
+});
+
+test('validateProjectSubmissionInput accepts OpenCode and Google AI Studio platforms', () => {
+  for (const developmentPlatform of ['opencode', 'google_ai_studio'] as const) {
+    const result = validateProjectSubmissionInput(
+      { ...createValidInput(), developmentPlatform },
+      'en',
+    );
+    assert.equal(result.success, true, `${developmentPlatform} should be a valid platform`);
+  }
+});
+
+test('platform taxonomy assigns every labelled platform to exactly one internal category', () => {
+  const categorized = Object.values(PLATFORM_CATEGORIES).flat();
+  assert.deepEqual(
+    [...categorized].sort(),
+    (Object.keys(PLATFORM_LABELS) as DevelopmentPlatform[]).sort(),
+  );
+  assert.equal(new Set(categorized).size, categorized.length, 'a platform must not appear twice');
 });
 
 test('validateProjectSubmissionInput flags missing required fields and malformed URLs', () => {

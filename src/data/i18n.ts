@@ -4,7 +4,10 @@ import type {
   ContentType,
   DevelopmentPlatform,
   HostingProvider,
+  OwnershipClaimRecord,
+  PlatformCategory,
   PricingModel,
+  ProjectReportRecord,
   SortOption,
   VerificationStatus,
 } from '../types/vibeatlas';
@@ -251,13 +254,13 @@ export const UI_STRINGS: Record<
       darkMode: '다크 모드',
       koreanSearchNoteTitle: '한/영 다국어 검색 안내',
       koreanSearchNoteBody:
-        '기본 영문 형태소 토크나이저는 한국어 조사·어미를 분리하지 못하므로, VibeAtlas는 한국어 부분 문자열 매칭과 기술 용어 한·영 동의어 확장(예: 에이전트↔agent, 서버↔server)을 병행합니다.',
+        '기본 영문 형태소 토크나이저는 한국어 조사·어미를 분리하지 못하므로, W-Vibe는 한국어 부분 문자열 매칭과 기술 용어 한·영 동의어 확장(예: 에이전트↔agent, 서버↔server)을 병행합니다.',
     },
     hero: {
       kicker: '검증된 메타데이터 · 투명한 랭킹',
       headline: '바이브코딩 앱, MCP 서버, AI Skills를 한눈에 찾고 검증하세요',
       subheadline:
-        'VibeAtlas는 GitHub 스타와 내부 좋아요·북마크를 엄격히 분리하고, 미확인·오래된 데이터를 숨기지 않고 투명하게 표기하는 글로벌 메이커 디스커버리 플랫폼입니다.',
+        'W-Vibe는 GitHub 스타와 내부 좋아요·북마크를 엄격히 분리하고, 미확인·오래된 데이터를 숨기지 않고 투명하게 표기하는 글로벌 메이커 디스커버리 플랫폼입니다.',
       searchPlaceholder: '예: MCP 서버, Lovable, 한국어 에이전트, Supabase...',
       searchButton: '검색',
       quickBrowseLabel: '빠른 탐색',
@@ -281,7 +284,7 @@ export const UI_STRINGS: Record<
       submitCtaBody:
         'GitHub 저장소를 연결해 별점·라이선스를 자동 검증하고, 사용 스택과 데모 링크를 투명하게 소개할 수 있습니다.',
       submitCtaButton: '지금 프로젝트 등록',
-      newsletterTitle: '주간 VibeAtlas 다이제스트',
+      newsletterTitle: '주간 W-Vibe 다이제스트',
       newsletterBody: '매주 검증된 신규 MCP 서버, AI Skills, 한국·글로벌 메이커 출시 소식을 받아보세요.',
       newsletterPlaceholder: '이메일 주소 입력 (Google 로그인 연동)',
       newsletterButton: '구독 신청',
@@ -333,7 +336,7 @@ export const UI_STRINGS: Record<
     detail: {
       close: '닫기',
       externalLinksTitle: '외부 링크 (외부 사이트로 이동)',
-      internalActionsTitle: 'VibeAtlas 내부 액션',
+      internalActionsTitle: 'W-Vibe 내부 액션',
       liveDemo: '라이브 데모',
       officialWebsite: '공식 웹사이트',
       githubRepository: 'GitHub 저장소',
@@ -352,7 +355,7 @@ export const UI_STRINGS: Record<
       pricingLabel: '가격 정책',
       countryLangLabel: '국가 / 언어',
       historyChartTitle: '최근 14일 성장 추이 (GitHub 스타 · 내부 신호)',
-      historyChartSubtitle: 'GitHub 스타 변화량과 VibeAtlas 내부 북마크·좋아요는 별도 축으로 구분됩니다.',
+      historyChartSubtitle: 'GitHub 스타 변화량과 W-Vibe 내부 북마크·좋아요는 별도 축으로 구분됩니다.',
       chartTabStars: 'GitHub 스타',
       chartTabInternal: '내부 좋아요·북마크',
       chartUnsyncedStarsHint: 'GitHub 저장소가 아직 동기화되지 않았습니다. 실시간 스타 수를 반영하려면 동기화하세요.',
@@ -443,7 +446,7 @@ export const UI_STRINGS: Record<
       engagementUnit: '합계',
     },
     footer: {
-      tagline: 'VibeAtlas (Working Name) — 검증 가능한 AI 프로덕트 · MCP · AI Skills 디렉터리',
+      tagline: 'W-Vibe (Working Name) — 검증 가능한 AI 프로덕트 · MCP · AI Skills 디렉터리',
       transparencyNote: '모든 외부 GitHub 지표와 내부 활동 지표는 분리 집계됩니다.',
     },
     voiceSearch: {
@@ -477,18 +480,18 @@ export const UI_STRINGS: Record<
       darkMode: 'Dark Mode',
       koreanSearchNoteTitle: 'Multilingual Search Strategy',
       koreanSearchNoteBody:
-        'Standard English word stemmers skip Korean agglutinative tokens. VibeAtlas pairs case-insensitive Korean/English substring matching with curated bilingual tech term expansion.',
+        'Standard English word stemmers skip Korean agglutinative tokens. W-Vibe pairs case-insensitive Korean/English substring matching with curated bilingual tech term expansion.',
     },
     hero: {
       kicker: 'Verifiable Metadata · Transparent Rankings',
       headline: 'Discover and evaluate vibe-coded apps, MCP servers, and AI Skills',
       subheadline:
-        'VibeAtlas separates GitHub stars from internal likes and bookmarks, surfaces metadata provenance, and transparently marks stale or unverified listings.',
+        'W-Vibe separates GitHub stars from internal likes and bookmarks, surfaces metadata provenance, and transparently marks stale or unverified listings.',
       searchPlaceholder: 'Search MCP servers, Lovable apps, Korean makers, Supabase...',
       searchButton: 'Search',
       quickBrowseLabel: 'Quick Browse',
       verifiedMetricNote:
-        'GitHub metrics sync via the official REST API and are never blended with internal VibeAtlas engagement.',
+        'GitHub metrics sync via the official REST API and are never blended with internal W-Vibe engagement.',
     },
     home: {
       trendingTab: 'Trending This Week',
@@ -507,7 +510,7 @@ export const UI_STRINGS: Record<
       submitCtaBody:
         'Connect your GitHub repository to pull verifiable license and star telemetry, and document your real build stack.',
       submitCtaButton: 'Submit Your Project',
-      newsletterTitle: 'Weekly VibeAtlas Digest',
+      newsletterTitle: 'Weekly W-Vibe Digest',
       newsletterBody: 'Curated weekly launches across MCP servers, AI Skills, and Korean/global builders.',
       newsletterPlaceholder: 'Your email (requires Google sign-in)',
       newsletterButton: 'Subscribe',
@@ -558,8 +561,8 @@ export const UI_STRINGS: Record<
     },
     detail: {
       close: 'Close',
-      externalLinksTitle: 'External Links (Leaves VibeAtlas)',
-      internalActionsTitle: 'VibeAtlas Actions',
+      externalLinksTitle: 'External Links (Leaves W-Vibe)',
+      internalActionsTitle: 'W-Vibe Actions',
       liveDemo: 'Live Demo',
       officialWebsite: 'Official Website',
       githubRepository: 'GitHub Repo',
@@ -578,7 +581,7 @@ export const UI_STRINGS: Record<
       pricingLabel: 'Pricing',
       countryLangLabel: 'Country / Language',
       historyChartTitle: '14-Day Growth History (GitHub Stars & Internal Signals)',
-      historyChartSubtitle: 'External GitHub stars and internal VibeAtlas engagement are plotted on separate charts.',
+      historyChartSubtitle: 'External GitHub stars and internal W-Vibe engagement are plotted on separate charts.',
       chartTabStars: 'GitHub Stars',
       chartTabInternal: 'Internal Signals',
       chartUnsyncedStarsHint: 'GitHub repository has not been synced yet. Sync now to plot live star totals.',
@@ -597,7 +600,7 @@ export const UI_STRINGS: Record<
     },
     submit: {
       title: 'Submit a Project',
-      subtitle: 'Publish verifiable metadata to the VibeAtlas directory backed by Firestore.',
+      subtitle: 'Publish verifiable metadata to the W-Vibe directory backed by Firestore.',
       githubImportTitle: 'Import Metadata from GitHub',
       githubImportHint: 'e.g. modelcontextprotocol/servers or https://github.com/cline/cline',
       githubImportPlaceholder: 'Enter owner/repo or GitHub URL',
@@ -669,7 +672,7 @@ export const UI_STRINGS: Record<
       engagementUnit: 'total',
     },
     footer: {
-      tagline: 'VibeAtlas (Working Name) — Verifiable Discovery for AI Products, MCP & Skills',
+      tagline: 'W-Vibe (Working Name) — Verifiable Discovery for AI Products, MCP & Skills',
       transparencyNote: 'External GitHub stars and internal engagement are always counted separately.',
     },
     voiceSearch: {
@@ -717,7 +720,292 @@ export const PLATFORM_LABELS: Record<DevelopmentPlatform, string> = {
   v0: 'v0 by Vercel',
   claude_code: 'Claude Code',
   replit: 'Replit',
+  opencode: 'OpenCode',
+  google_ai_studio: 'Google AI Studio',
   custom: 'Custom IDE',
+};
+
+/**
+ * Internal taxonomy requested for the directory: coding agents and app
+ * builders are grouped separately while still storing the concrete
+ * `developmentPlatform` value on each project document.
+ */
+export const PLATFORM_CATEGORIES: Record<PlatformCategory, DevelopmentPlatform[]> = {
+  ai_coding_agent: ['opencode', 'cursor', 'windsurf', 'claude_code'],
+  ai_app_builder: ['google_ai_studio', 'lovable', 'bolt', 'v0', 'replit'],
+  other: ['custom'],
+};
+
+export const PLATFORM_CATEGORY_LABELS: Record<AppLanguage, Record<PlatformCategory, string>> = {
+  ko: {
+    ai_coding_agent: 'AI 코딩 에이전트',
+    ai_app_builder: 'AI 앱 빌더',
+    other: '기타',
+  },
+  en: {
+    ai_coding_agent: 'AI Coding Agent',
+    ai_app_builder: 'AI App Builder',
+    other: 'Other',
+  },
+};
+
+export const ADMIN_STRINGS: Record<
+  AppLanguage,
+  {
+    navLabel: string;
+    title: string;
+    subtitle: string;
+    mainAdmin: string;
+    subAdmin: string;
+    backHome: string;
+    accessDeniedTitle: string;
+    accessDeniedBody: string;
+    loading: string;
+    errorPrefix: string;
+    tabs: { overview: string; reports: string; claims: string; projects: string };
+    stats: {
+      projects: string;
+      verified: string;
+      openReports: string;
+      pendingClaims: string;
+      likes: string;
+      bookmarks: string;
+    };
+    reports: {
+      title: string;
+      subtitle: string;
+      empty: string;
+      project: string;
+      reporter: string;
+      reason: string;
+      details: string;
+      createdAt: string;
+      status: string;
+      actions: string;
+      markReviewed: string;
+      markResolved: string;
+      reopen: string;
+    };
+    claims: {
+      title: string;
+      subtitle: string;
+      empty: string;
+      project: string;
+      claimant: string;
+      method: string;
+      proof: string;
+      createdAt: string;
+      status: string;
+      actions: string;
+      approve: string;
+      reject: string;
+    };
+    projects: {
+      title: string;
+      subtitle: string;
+      searchPlaceholder: string;
+      empty: string;
+      name: string;
+      platform: string;
+      owner: string;
+      verification: string;
+      actions: string;
+      view: string;
+      delete: string;
+      confirmDelete: string;
+      seed: string;
+      noActions: string;
+    };
+    status: {
+      open: string;
+      reviewed: string;
+      resolved: string;
+      pending: string;
+      approved: string;
+      rejected: string;
+      verified: string;
+      unverified: string;
+    };
+    reasons: Record<ProjectReportRecord['reason'], string>;
+    methods: Record<OwnershipClaimRecord['verificationMethod'], string>;
+  }
+> = {
+  ko: {
+    navLabel: '관리자',
+    title: '관리자 대시보드',
+    subtitle: '신고·소유권 클레임·프로젝트 검증 상태를 한곳에서 검토합니다.',
+    mainAdmin: '메인 관리자',
+    subAdmin: '서브 관리자',
+    backHome: '홈으로',
+    accessDeniedTitle: '관리자 전용 페이지입니다',
+    accessDeniedBody: '메인 관리자(kwpark0047@gmail.com) 또는 서브 관리자(kwpark0047@iceu.kr) 계정으로 로그인해야 합니다.',
+    loading: '불러오는 중…',
+    errorPrefix: '작업을 완료하지 못했습니다:',
+    tabs: { overview: '개요', reports: '신고', claims: '소유권 클레임', projects: '프로젝트' },
+    stats: {
+      projects: '등록 프로젝트',
+      verified: '검증 완료',
+      openReports: '미처리 신고',
+      pendingClaims: '대기 클레임',
+      likes: '좋아요',
+      bookmarks: '북마크',
+    },
+    reports: {
+      title: '신고 처리',
+      subtitle: '신고 상태를 검토 중 또는 해결됨으로 변경할 수 있습니다.',
+      empty: '접수된 신고가 없습니다.',
+      project: '프로젝트',
+      reporter: '신고자 UID',
+      reason: '사유',
+      details: '상세 내용',
+      createdAt: '접수일',
+      status: '상태',
+      actions: '작업',
+      markReviewed: '검토 중',
+      markResolved: '해결됨',
+      reopen: '다시 열기',
+    },
+    claims: {
+      title: '소유권 클레임',
+      subtitle: '프로젝트 소유권 주장을 승인하거나 거절합니다.',
+      empty: '대기 중인 소유권 클레임이 없습니다.',
+      project: '프로젝트',
+      claimant: '신청자 UID',
+      method: '검증 방식',
+      proof: '증빙 메모',
+      createdAt: '신청일',
+      status: '상태',
+      actions: '작업',
+      approve: '승인',
+      reject: '거절',
+    },
+    projects: {
+      title: '프로젝트 관리',
+      subtitle: '검증 상태를 변경하거나 프로젝트를 삭제합니다.',
+      searchPlaceholder: '이름, 슬러그, 메이커 검색',
+      empty: '조건에 맞는 프로젝트가 없습니다.',
+      name: '프로젝트',
+      platform: '플랫폼',
+      owner: '소유자',
+      verification: '검증 상태',
+      actions: '작업',
+      view: '상세',
+      delete: '삭제',
+      confirmDelete: '이 프로젝트를 삭제할까요? 이 작업은 되돌릴 수 없습니다.',
+      seed: '기본 카탈로그',
+      noActions: '번들 시드는 여기서 수정할 수 없습니다.',
+    },
+    status: {
+      open: '접수',
+      reviewed: '검토 중',
+      resolved: '해결됨',
+      pending: '대기',
+      approved: '승인',
+      rejected: '거절',
+      verified: '검증 완료',
+      unverified: '미검증',
+    },
+    reasons: {
+      broken_link: '깨진 링크',
+      stale_metadata: '오래된 정보',
+      spam: '스팸',
+      misattribution: '출처 오표기',
+      security_concern: '보안 우려',
+    },
+    methods: {
+      github_repo: 'GitHub 저장소',
+      domain_dns: '도메인 DNS',
+      demo_meta: '데모 메타데이터',
+    },
+  },
+  en: {
+    navLabel: 'Admin',
+    title: 'Admin dashboard',
+    subtitle: 'Review reports, ownership claims, and project verification in one place.',
+    mainAdmin: 'Main admin',
+    subAdmin: 'Sub admin',
+    backHome: 'Back home',
+    accessDeniedTitle: 'Admins only',
+    accessDeniedBody: 'Sign in with the main admin (kwpark0047@gmail.com) or sub admin (kwpark0047@iceu.kr) account.',
+    loading: 'Loading…',
+    errorPrefix: 'Could not complete the action:',
+    tabs: { overview: 'Overview', reports: 'Reports', claims: 'Claims', projects: 'Projects' },
+    stats: {
+      projects: 'Projects',
+      verified: 'Verified',
+      openReports: 'Open reports',
+      pendingClaims: 'Pending claims',
+      likes: 'Likes',
+      bookmarks: 'Bookmarks',
+    },
+    reports: {
+      title: 'Report triage',
+      subtitle: 'Move reports to reviewed or resolved.',
+      empty: 'No reports yet.',
+      project: 'Project',
+      reporter: 'Reporter UID',
+      reason: 'Reason',
+      details: 'Details',
+      createdAt: 'Created',
+      status: 'Status',
+      actions: 'Actions',
+      markReviewed: 'Mark reviewed',
+      markResolved: 'Mark resolved',
+      reopen: 'Reopen',
+    },
+    claims: {
+      title: 'Ownership claims',
+      subtitle: 'Approve or reject project ownership claims.',
+      empty: 'No pending ownership claims.',
+      project: 'Project',
+      claimant: 'Claimant UID',
+      method: 'Method',
+      proof: 'Proof note',
+      createdAt: 'Created',
+      status: 'Status',
+      actions: 'Actions',
+      approve: 'Approve',
+      reject: 'Reject',
+    },
+    projects: {
+      title: 'Project management',
+      subtitle: 'Change verification status or delete projects.',
+      searchPlaceholder: 'Search name, slug, maker',
+      empty: 'No projects match the search.',
+      name: 'Project',
+      platform: 'Platform',
+      owner: 'Owner',
+      verification: 'Verification',
+      actions: 'Actions',
+      view: 'View',
+      delete: 'Delete',
+      confirmDelete: 'Delete this project? This cannot be undone.',
+      seed: 'Bundled seed',
+      noActions: 'Bundled seeds cannot be edited here.',
+    },
+    status: {
+      open: 'Open',
+      reviewed: 'Reviewed',
+      resolved: 'Resolved',
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      verified: 'Verified',
+      unverified: 'Unverified',
+    },
+    reasons: {
+      broken_link: 'Broken link',
+      stale_metadata: 'Stale metadata',
+      spam: 'Spam',
+      misattribution: 'Misattribution',
+      security_concern: 'Security concern',
+    },
+    methods: {
+      github_repo: 'GitHub repository',
+      domain_dns: 'Domain DNS',
+      demo_meta: 'Demo metadata',
+    },
+  },
 };
 
 export const HOSTING_LABELS: Record<HostingProvider, string> = {
@@ -767,8 +1055,8 @@ export const SORT_LABELS: Record<AppLanguage, Record<SortOption, string>> = {
     trending_7d: '트렌딩 7일',
     trending_30d: '트렌딩 30일',
     most_starred: 'GitHub 스타순',
-    most_liked: 'VibeAtlas 좋아요순',
-    most_bookmarked: 'VibeAtlas 북마크순',
+    most_liked: 'W-Vibe 좋아요순',
+    most_bookmarked: 'W-Vibe 북마크순',
     recently_added: '최신 등록순',
     recently_updated: '최근 업데이트순',
   },
@@ -778,7 +1066,7 @@ export const SORT_LABELS: Record<AppLanguage, Record<SortOption, string>> = {
     trending_7d: 'Trending 7d',
     trending_30d: 'Trending 30d',
     most_starred: 'Most Starred (GitHub)',
-    most_liked: 'Most Liked (VibeAtlas)',
+    most_liked: 'Most Liked (W-Vibe)',
     most_bookmarked: 'Most Bookmarked',
     recently_added: 'Recently Added',
     recently_updated: 'Recently Updated',

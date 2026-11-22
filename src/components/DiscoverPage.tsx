@@ -15,6 +15,7 @@ import type {
   ContentType,
   DevelopmentPlatform,
   HostingProvider,
+  PlatformCategory,
   PricingModel,
   SearchFilters,
   SortOption,
@@ -24,6 +25,8 @@ import {
   BACKEND_LABELS,
   CONTENT_TYPE_LABELS,
   HOSTING_LABELS,
+  PLATFORM_CATEGORIES,
+  PLATFORM_CATEGORY_LABELS,
   PLATFORM_LABELS,
   PRICING_LABELS,
   SORT_LABELS,
@@ -151,10 +154,14 @@ export function DiscoverPage({
           className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
         >
           <option value="all">{copy.allOption}</option>
-          {(Object.keys(PLATFORM_LABELS) as DevelopmentPlatform[]).map((key) => (
-            <option key={key} value={key}>
-              {PLATFORM_LABELS[key]}
-            </option>
+          {(Object.keys(PLATFORM_CATEGORIES) as PlatformCategory[]).map((category) => (
+            <optgroup key={category} label={PLATFORM_CATEGORY_LABELS[language][category]}>
+              {PLATFORM_CATEGORIES[category].map((key) => (
+                <option key={key} value={key}>
+                  {PLATFORM_LABELS[key]}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>

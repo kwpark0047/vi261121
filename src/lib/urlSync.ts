@@ -48,6 +48,8 @@ const VALID_PLATFORMS: ReadonlyArray<DevelopmentPlatform> = [
   'v0',
   'claude_code',
   'replit',
+  'opencode',
+  'google_ai_studio',
   'custom',
 ];
 
@@ -122,7 +124,9 @@ export function parseUrlState(searchString: string): RouteUrlState {
   const params = new URLSearchParams(searchString.startsWith('?') ? searchString.slice(1) : searchString);
   const tabParam = params.get('tab');
   const tab: ActivePage =
-    tabParam === 'discover' || tabParam === 'maker' || tabParam === 'submit' ? tabParam : 'home';
+    tabParam === 'discover' || tabParam === 'maker' || tabParam === 'submit' || tabParam === 'admin'
+      ? tabParam
+      : 'home';
 
   const projectSlug = params.get('project')?.trim() || null;
 

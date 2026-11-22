@@ -377,3 +377,106 @@ test('12. list queries cannot scrape other users\' reports/claims', { skip: !RUN
   await expectDenied("bob reading alice's report", getDoc(doc(bob.firestore(), 'reports/r2')));
   await expectDenied("bob reading alice's claim", getDoc(doc(bob.firestore(), 'ownershipClaims/c3')));
 });
+
+// ---------------------------------------------------------------------------
+// Admin moderation (main + sub admin identities from `security_spec.md`)
+// ---------------------------------------------------------------------------
+
+test('main admin can list and moderate reports/claims and verify projects', { skip: !RUN }, async () => {
+  const t = requireEnv();
+  const alice = t.authenticatedContext('alice', { email: 'alice@example.com', email_verified: true });
+  const admin = t.authenticatedContext('main-admin', {
+    email: 'kwpark0047@gmail.com',
+    email_verified: true,
+  });
+
+  await assertSucceeds(createDoc(alice.firestore(), 'reports/admin-r1', pendingReport()));
+  await assertSucceeds(createDoc(alice.firestore(), 'ownershipClaims/admin-c1', pendingClaim()));
+  await assertSucceeds(createDoc(alice.firestore(), 'projects/admin-p1', validProject()));
+
+  // Admin-wide list queries are the moderation dashboard's data source.
+  await assertSucceeds(snapshotDocs(admin.firestore(), 'reports'));
+  await assertSucceeds(snapshotDocs(admin.firestore(), 'ownershipClaims'));
+
+  const adminFs = admin.firestore();
+  const reportRef = doc(adminFs, 'reports/admin-r1');
+  const reportSnap = await getDoc(reportRef);
+  assert.ok(reportSnap.exists(), 'report fixture should exist before moderation');
+  await assertSucceeds(
+    setDoc(reportRef, {
+      ...reportSnap.data(),
+      status: 'resolved',
+      updatedAt: serverTimestamp(),
+    }),
+  );
+
+  const claimRef = doc(adminFs, 'ownershipClaims/admin-c1');
+  const claimSnap = await getDoc(claimRef);
+  assert.ok(claimSnap.exists(), 'claim fixture should exist before moderation');
+  await assertSucceeds(
+    setDoc(claimRef, {
+      ...claimSnap.data(),
+      status: 'approved',
+      updatedAt: serverTimestamp(),
+    }),
+  );
+
+  const projectRef = doc(adminFs, 'projects/admin-p1');
+  const projectSnap = await getDoc(projectRef);
+  assert.ok(projectSnap.exists(), 'project fixture should exist before moderation');
+  await assertSucceeds(
+    setDoc(projectRef, {
+      ...projectSnap.data(),
+      verificationStatus: 'verified',
+      updatedAt: serverTimestamp(),
+    }),
+  );
+
+  // Resolved reports are terminal; the rules reject reopening them.
+  await expectDenied(
+    'reopening a resolved report',
+    setDoc(reportRef, {
+      ...reportSnap.data(),
+      status: 'open',
+      updatedAt: serverTimestamp(),
+    }),
+  );
+
+  await assertSucceeds(deleteDoc(projectRef));
+});
+
+test('sub admin can list and resolve reports', { skip: !RUN }, async () => {
+  const t = requireEnv();
+  const alice = t.authenticatedContext('alice', { email: 'alice@example.com', email_verified: true });
+  const subAdmin = t.authenticatedContext('sub-admin', {
+    email: 'kwpark0047@iceu.kr',
+    email_verified: true,
+  });
+
+  await assertSucceeds(createDoc(alice.firestore(), 'reports/sub-r1', pendingReport()));
+  await assertSucceeds(snapshotDocs(subAdmin.firestore(), 'reports'));
+
+  const ref = doc(subAdmin.firestore(), 'reports/sub-r1');
+  const snap = await getDoc(ref);
+  assert.ok(snap.exists(), 'report fixture should exist before moderation');
+  await assertSucceeds(
+    setDoc(ref, {
+      ...snap.data(),
+      status: 'reviewed',
+      updatedAt: serverTimestamp(),
+    }),
+  );
+});
+
+test('unverified admin email cannot use moderation queries', { skip: !RUN }, async () => {
+  const t = requireEnv();
+  const alice = t.authenticatedContext('alice', { email: 'alice@example.com', email_verified: true });
+  const unverified = t.authenticatedContext('unverified-admin', {
+    email: 'kwpark0047@gmail.com',
+    email_verified: false,
+  });
+
+  await assertSucceeds(createDoc(alice.firestore(), 'reports/unverified-r1', pendingReport()));
+  await expectDenied("unverified admin's /reports list", snapshotDocs(unverified.firestore(), 'reports'));
+});
+

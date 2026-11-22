@@ -1,7 +1,8 @@
-import { Bookmark, LogIn, LogOut, Moon, Sun, User as UserIcon } from 'lucide-react';
+import { Bookmark, LogIn, LogOut, Moon, ShieldCheck, Sun, User as UserIcon } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { ActivePage, AppLanguage } from '../types/vibeatlas';
-import { UI_STRINGS } from '../data/i18n';
+import { ADMIN_STRINGS, UI_STRINGS } from '../data/i18n';
+import { getAdminRole } from '../lib/admin';
 
 interface WorkspaceBarProps {
   language: AppLanguage;
@@ -29,6 +30,7 @@ export function WorkspaceBar({
   onNavigate,
 }: WorkspaceBarProps) {
   const copy = UI_STRINGS[language].workspace;
+  const adminRole = getAdminRole(user);
 
   return (
     <div className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/60">
@@ -75,6 +77,20 @@ export function WorkspaceBar({
         </div>
 
         <div className="flex items-center gap-2">
+          {adminRole && (
+            <button
+              type="button"
+              onClick={() => onNavigate('admin')}
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-800 transition-colors hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/50"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>{ADMIN_STRINGS[language].navLabel}</span>
+              <span className="rounded-full bg-indigo-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                {adminRole === 'main' ? 'M' : 'S'}
+              </span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => onNavigate('maker')}

@@ -17,7 +17,11 @@ export type DevelopmentPlatform =
   | 'v0'
   | 'claude_code'
   | 'replit'
+  | 'opencode'
+  | 'google_ai_studio'
   | 'custom';
+
+export type PlatformCategory = 'ai_coding_agent' | 'ai_app_builder' | 'other';
 
 export type HostingProvider =
   | 'vercel'
@@ -61,7 +65,7 @@ export type SortOption =
 
 export type ViewMode = 'grid' | 'list';
 
-export type ActivePage = 'home' | 'discover' | 'maker' | 'submit';
+export type ActivePage = 'home' | 'discover' | 'maker' | 'submit' | 'admin';
 
 export interface DailySignalPoint {
   date: string;
@@ -145,6 +149,7 @@ export interface ProjectReportRecord {
   details: string;
   status: 'open' | 'reviewed' | 'resolved';
   createdAtIso: string;
+  updatedAtIso?: string;
 }
 
 export interface OwnershipClaimRecord {
@@ -156,6 +161,7 @@ export interface OwnershipClaimRecord {
   proofNote: string;
   status: 'pending' | 'approved' | 'rejected';
   createdAtIso: string;
+  updatedAtIso?: string;
 }
 
 export interface GitHubRepoMetadata {

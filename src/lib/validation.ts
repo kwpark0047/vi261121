@@ -112,6 +112,8 @@ export const projectSubmissionSchema = z.object({
     'v0',
     'claude_code',
     'replit',
+    'opencode',
+    'google_ai_studio',
     'custom',
   ]),
   hostingProvider: z.enum([

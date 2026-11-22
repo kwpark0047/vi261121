@@ -84,6 +84,8 @@ const draftFieldsSchema = z.object({
     'v0',
     'claude_code',
     'replit',
+    'opencode',
+    'google_ai_studio',
     'custom',
   ]),
   hosting: z.enum([

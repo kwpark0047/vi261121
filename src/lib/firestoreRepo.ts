@@ -22,6 +22,7 @@ import type {
   CatalogProject,
   OwnershipClaimRecord,
   ProjectReportRecord,
+  VerificationStatus,
 } from '../types/vibeatlas';
 
 function toIsoString(val: unknown): string {
@@ -41,7 +42,7 @@ export async function syncSignedInUserProfile(user: User): Promise<void> {
       doc(db, 'users', user.uid, 'public', 'profile'),
       {
         uid: user.uid,
-        displayName: (user.displayName || 'VibeAtlas Maker').slice(0, 100),
+        displayName: (user.displayName || 'W-Vibe Maker').slice(0, 100),
         handle: user.email ? `@${user.email.split('@')[0].slice(0, 50)}` : '',
         bio: '',
         country: 'KR',
@@ -420,6 +421,142 @@ export function subscribeToUserClaims(
     },
     (err) => handleFirestoreError(err, OperationType.LIST, path)
   );
+}
+
+// ---------------------------------------------------------------------------
+// Admin moderation (main/sub admin). Firestore rules enforce every write;
+// these helpers just keep the client payloads in the exact shapes the rules
+// validate. Updates send the full existing document because the project rules
+// re-validate the complete shape on every write.
+// ---------------------------------------------------------------------------
+
+export function subscribeToAllReports(
+  onData: (reports: ProjectReportRecord[]) => void,
+  onError?: (err: Error) => void
+): Unsubscribe {
+  const path = 'reports';
+  const q = query(collection(db, 'reports'), orderBy('createdAt', 'desc'));
+  return onSnapshot(
+    q,
+    (snap) => {
+      onData(
+        snap.docs.map((d) => {
+          const data = d.data();
+          return {
+            id: d.id,
+            projectId: String(data.projectId || ''),
+            projectSlug: String(data.projectSlug || ''),
+            reporterUid: String(data.reporterUid || ''),
+            reason: data.reason || 'broken_link',
+            details: String(data.details || ''),
+            status: data.status || 'open',
+            createdAtIso: toIsoString(data.createdAt),
+            updatedAtIso: data.updatedAt ? toIsoString(data.updatedAt) : undefined,
+          };
+        })
+      );
+    },
+    (err) => {
+      if (onError) onError(err);
+      else handleFirestoreError(err, OperationType.LIST, path);
+    }
+  );
+}
+
+export function subscribeToAllClaims(
+  onData: (claims: OwnershipClaimRecord[]) => void,
+  onError?: (err: Error) => void
+): Unsubscribe {
+  const path = 'ownershipClaims';
+  const q = query(collection(db, 'ownershipClaims'), orderBy('createdAt', 'desc'));
+  return onSnapshot(
+    q,
+    (snap) => {
+      onData(
+        snap.docs.map((d) => {
+          const data = d.data();
+          return {
+            id: d.id,
+            projectId: String(data.projectId || ''),
+            projectSlug: String(data.projectSlug || ''),
+            claimantUid: String(data.claimantUid || ''),
+            verificationMethod: data.verificationMethod || 'github_repo',
+            proofNote: String(data.proofNote || ''),
+            status: data.status || 'pending',
+            createdAtIso: toIsoString(data.createdAt),
+            updatedAtIso: data.updatedAt ? toIsoString(data.updatedAt) : undefined,
+          };
+        })
+      );
+    },
+    (err) => {
+      if (onError) onError(err);
+      else handleFirestoreError(err, OperationType.LIST, path);
+    }
+  );
+}
+
+export async function updateReportStatus(
+  reportId: string,
+  status: ProjectReportRecord['status']
+): Promise<void> {
+  const path = `reports/${reportId}`;
+  try {
+    const ref = doc(db, 'reports', reportId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      throw new Error('Report not found.');
+    }
+    await setDoc(ref, {
+      ...snap.data(),
+      status,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (err) {
+    handleFirestoreError(err, OperationType.UPDATE, path);
+  }
+}
+
+export async function updateClaimStatus(
+  claimId: string,
+  status: OwnershipClaimRecord['status']
+): Promise<void> {
+  const path = `ownershipClaims/${claimId}`;
+  try {
+    const ref = doc(db, 'ownershipClaims', claimId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      throw new Error('Ownership claim not found.');
+    }
+    await setDoc(ref, {
+      ...snap.data(),
+      status,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (err) {
+    handleFirestoreError(err, OperationType.UPDATE, path);
+  }
+}
+
+export async function updateProjectVerificationStatus(
+  projectId: string,
+  verificationStatus: VerificationStatus
+): Promise<void> {
+  const path = `projects/${projectId}`;
+  try {
+    const ref = doc(db, 'projects', projectId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      throw new Error('Project not found.');
+    }
+    await setDoc(ref, {
+      ...snap.data(),
+      verificationStatus,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (err) {
+    handleFirestoreError(err, OperationType.UPDATE, path);
+  }
 }
 
 export async function subscribeNewsletterInFirestore(

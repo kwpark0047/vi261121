@@ -20,7 +20,7 @@ async function createApp() {
   app.get('/api/health', (_req: Request, res: Response) => {
     res.json({
       ok: true,
-      app: 'VibeAtlas',
+      app: 'W-Vibe',
       hasGithubToken: Boolean(process.env.GITHUB_TOKEN?.trim()),
     });
   });
@@ -91,11 +91,11 @@ async function createApp() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`VibeAtlas listening on http://localhost:${PORT}`);
+    console.log(`W-Vibe listening on http://localhost:${PORT}`);
   });
 }
 
 createApp().catch((err) => {
-  console.error('Failed to start VibeAtlas server:', err);
+  console.error('Failed to start W-Vibe server:', err);
   process.exit(1);
 });

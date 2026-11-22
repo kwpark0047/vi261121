@@ -38,6 +38,7 @@ const HomePage = lazy(() => import('./components/HomePage').then((m) => ({ defau
 const DiscoverPage = lazy(() => import('./components/DiscoverPage').then((m) => ({ default: m.DiscoverPage })));
 const SubmitProjectPage = lazy(() => import('./components/SubmitProjectPage').then((m) => ({ default: m.SubmitProjectPage })));
 const MakerDashboardPage = lazy(() => import('./components/MakerDashboardPage').then((m) => ({ default: m.MakerDashboardPage })));
+const AdminDashboardPage = lazy(() => import('./components/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })));
 const ProjectDetailModal = lazy(() => import('./components/ProjectDetailModal').then((m) => ({ default: m.ProjectDetailModal })));
 
 const STORAGE_LANG_KEY = 'vibeatlas_lang_v1';
@@ -474,6 +475,19 @@ export default function App() {
                 onToggleBookmark={(p) => void handleToggleBookmark(p)}
                 onSyncProject={(p) => void handleSyncSingleGithub(p)}
                 onDeleteProject={deleteFirestoreProject}
+              />
+            </Suspense>
+          )}
+
+          {activePage === 'admin' && (
+            <Suspense fallback={null}>
+              <AdminDashboardPage
+                language={language}
+                user={user}
+                authLoading={authLoading}
+                projects={allProjects}
+                onNavigate={setActivePage}
+                onOpenDetail={(p) => setSelectedSlug(p.slug)}
               />
             </Suspense>
           )}

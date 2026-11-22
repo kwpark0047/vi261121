@@ -23,7 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error('VibeAtlas ErrorBoundary caught:', error, info);
+    console.error('W-Vibe ErrorBoundary caught:', error, info);
   }
 
   render(): ReactNode {

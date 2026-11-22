@@ -39,7 +39,7 @@ export function TopNav({ language, activePage, onNavigate }: TopNavProps) {
           }}
           className="font-display shrink-0 whitespace-nowrap text-xl font-bold tracking-tight text-slate-900 dark:text-white"
         >
-          VibeAtlas
+          W-Vibe
         </a>
 
         <nav

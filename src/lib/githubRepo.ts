@@ -37,7 +37,7 @@ async function fetchGitHubRepoFromApi(slug: string): Promise<GitHubRepoResult> {
 
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
-    'User-Agent': 'VibeAtlas-Directory-Sync',
+    'User-Agent': 'W-Vibe-Directory-Sync',
     'X-GitHub-Api-Version': '2022-11-28',
   };
 

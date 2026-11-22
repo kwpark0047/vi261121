@@ -2,7 +2,7 @@
   "entities": {
     "Project": {
       "title": "Project",
-      "description": "A vibe-coded application, AI tool, MCP server, AI skill, agent, template, or open-source project listed on VibeAtlas.",
+      "description": "A vibe-coded application, AI tool, MCP server, AI skill, agent, template, or open-source project listed on W-Vibe.",
       "type": "object",
       "properties": {
         "slug": {
@@ -70,6 +70,8 @@
             "v0",
             "claude_code",
             "replit",
+            "opencode",
+            "google_ai_studio",
             "custom"
           ]
         },

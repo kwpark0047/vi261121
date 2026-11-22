@@ -1,4 +1,4 @@
-# VibeAtlas 무료 배포 가이드 (Vercel Hobby + Firebase Spark)
+# W-Vibe 무료 배포 가이드 (Vercel Hobby + Firebase Spark)
 
 2026-04 조사 기준. 가격·쿼터는 변동되므로 배포 직전 각 공식 페이지에서 재확인할 것.
 

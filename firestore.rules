@@ -31,6 +31,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return isVerifiedUser() && (
+        request.auth.token.email == 'kwpark0047@gmail.com' ||
         request.auth.token.email == 'kwpark0047@iceu.kr' ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       );
@@ -59,7 +60,7 @@ service cloud.firestore {
         data.contentType in ['web_app', 'ai_tool', 'mcp_server', 'ai_skill', 'ai_agent', 'template', 'open_source'] &&
         isValidStringArray(data.categories, 6) &&
         isValidStringArray(data.techStack, 12) &&
-        data.developmentPlatform in ['lovable', 'cursor', 'windsurf', 'bolt', 'v0', 'claude_code', 'replit', 'custom'] &&
+        data.developmentPlatform in ['lovable', 'cursor', 'windsurf', 'bolt', 'v0', 'claude_code', 'replit', 'opencode', 'google_ai_studio', 'custom'] &&
         data.hostingProvider in ['vercel', 'cloudflare', 'aws', 'fly_io', 'gcp', 'netlify', 'self_hosted', 'unknown'] &&
         data.backendTech in ['supabase', 'firebase', 'postgresql', 'nodejs', 'python_fastapi', 'sqlite', 'serverless', 'none', 'unknown'] &&
         isValidBoundedString(data.country, 2, 12) &&

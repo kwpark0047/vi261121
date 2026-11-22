@@ -10,12 +10,15 @@ import type {
   DevelopmentPlatform,
   GitHubRepoMetadata,
   HostingProvider,
+  PlatformCategory,
   PricingModel,
 } from '../types/vibeatlas';
 import {
   BACKEND_LABELS,
   CONTENT_TYPE_LABELS,
   HOSTING_LABELS,
+  PLATFORM_CATEGORIES,
+  PLATFORM_CATEGORY_LABELS,
   PLATFORM_LABELS,
   PRICING_LABELS,
   UI_STRINGS,
@@ -557,10 +560,14 @@ export function SubmitProjectPage({
               onChange={(e) => updateField('platform', e.target.value as DevelopmentPlatform)}
               className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs dark:border-slate-700 dark:bg-slate-950"
             >
-              {(Object.keys(PLATFORM_LABELS) as DevelopmentPlatform[]).map((k) => (
-                <option key={k} value={k}>
-                  {PLATFORM_LABELS[k]}
-                </option>
+              {(Object.keys(PLATFORM_CATEGORIES) as PlatformCategory[]).map((category) => (
+                <optgroup key={category} label={PLATFORM_CATEGORY_LABELS[language][category]}>
+                  {PLATFORM_CATEGORIES[category].map((k) => (
+                    <option key={k} value={k}>
+                      {PLATFORM_LABELS[k]}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>

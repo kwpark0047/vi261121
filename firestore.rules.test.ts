@@ -25,6 +25,12 @@ test('firestore.rules restricts PII and list scraping', () => {
   assert.match(rulesSource, /allow list: if isSignedIn\(\) && \(resource\.data\.claimantUid == request\.auth\.uid \|\| isAdmin\(\)\)/);
 });
 
+test('firestore.rules recognizes main and sub admins behind verified email', () => {
+  assert.match(rulesSource, /function isAdmin\(\) \{\s*return isVerifiedUser\(\)/);
+  assert.match(rulesSource, /kwpark0047@gmail\.com/);
+  assert.match(rulesSource, /kwpark0047@iceu\.kr/);
+});
+
 test('firestore.rules enforces atomic counter sync with existsAfter and getAfter', () => {
   assert.match(rulesSource, /existsAfter\(/);
   assert.match(rulesSource, /getAfter\(/);

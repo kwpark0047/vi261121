@@ -294,7 +294,7 @@ export function HomePage({
               {!heroImgFailed ? (
                 <img
                   src={HERO_IMAGE_PATH}
-                  alt="VibeAtlas maker studio showcase"
+                  alt="W-Vibe maker studio showcase"
                   referrerPolicy="no-referrer"
                   onError={() => setHeroImgFailed(true)}
                   className="h-full w-full object-cover"
@@ -302,7 +302,7 @@ export function HomePage({
               ) : (
                 <div className="flex h-full min-h-[260px] flex-col justify-center bg-gradient-to-br from-slate-100 to-blue-50 p-6 dark:from-slate-900 dark:to-slate-950">
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                    VibeAtlas Global Index
+                    W-Vibe Global Index
                   </p>
                   <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                     Web Apps · MCP Servers · AI Skills · Open Source
@@ -465,6 +465,16 @@ export function HomePage({
                   label: `Built with ${PLATFORM_LABELS.claude_code}`,
                   count: projects.filter((p) => p.developmentPlatform === 'claude_code').length,
                   patch: { platform: 'claude_code' as const },
+                },
+                {
+                  label: `Built with ${PLATFORM_LABELS.opencode}`,
+                  count: projects.filter((p) => p.developmentPlatform === 'opencode').length,
+                  patch: { platform: 'opencode' as const },
+                },
+                {
+                  label: `Built with ${PLATFORM_LABELS.google_ai_studio}`,
+                  count: projects.filter((p) => p.developmentPlatform === 'google_ai_studio').length,
+                  patch: { platform: 'google_ai_studio' as const },
                 },
               ].map((stack) => (
                 <button
