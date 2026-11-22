@@ -182,6 +182,11 @@ export const UI_STRINGS: Record<
       githubImportPlaceholder: string;
       githubFetchButton: string;
       fetchingGithub: string;
+      githubInvalidRepo: string;
+      githubNotFound: string;
+      githubRateLimited: string;
+      githubFetchFailed: string;
+      githubSyncSuccessPrefix: string;
       nameLabel: string;
       taglineEnLabel: string;
       taglineKoLabel: string;
@@ -206,9 +211,11 @@ export const UI_STRINGS: Record<
       submitting: string;
       signInPrompt: string;
       submitSuccess: string;
+      publishFailed: string;
       draftRestoredNotice: string;
       draftAutosaveHint: string;
       clearDraftButton: string;
+      dismissDraftNotice: string;
       validationSummaryPrefix: string;
     };
     maker: {
@@ -479,6 +486,12 @@ export const UI_STRINGS: Record<
       githubImportPlaceholder: 'owner/repo 또는 GitHub URL 입력',
       githubFetchButton: '실시간 가져오기',
       fetchingGithub: '조회 중...',
+      githubInvalidRepo: 'owner/repo 또는 https://github.com/owner/repo 형식으로 입력하세요.',
+      githubNotFound: 'GitHub 저장소를 찾을 수 없습니다. 저장소 이름을 확인해 주세요.',
+      githubRateLimited:
+        'GitHub API 요청 한도를 초과했습니다. 잠시 후 다시 시도하거나 서버에 GITHUB_TOKEN을 설정해 주세요.',
+      githubFetchFailed: 'GitHub 저장소 조회에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+      githubSyncSuccessPrefix: 'GitHub 동기화 완료',
       nameLabel: '프로젝트 이름 *',
       taglineEnLabel: '영문 한 줄 소개 (5~220자) *',
       taglineKoLabel: '한국어 한 줄 소개',
@@ -503,9 +516,11 @@ export const UI_STRINGS: Record<
       submitting: '등록 중...',
       signInPrompt: '프로젝트를 Firestore에 게시하려면 먼저 Google 계정으로 로그인해 주세요.',
       submitSuccess: '프로젝트가 등록되었습니다!',
+      publishFailed: '프로젝트 게시에 실패했습니다. 잠시 후 다시 시도해 주세요.',
       draftRestoredNotice: '이전에 작성 중이던 임시 저장 내용을 로컬 스토리지에서 불러왔습니다.',
       draftAutosaveHint: '입력 중인 내용과 설정은 30초마다 브라우저 로컬 스토리지에 자동 저장됩니다.',
       clearDraftButton: '임시 저장 초기화',
+      dismissDraftNotice: '임시 저장 알림 닫기',
       validationSummaryPrefix: '입력 항목을 확인해 주세요',
     },
     maker: {
@@ -775,6 +790,12 @@ export const UI_STRINGS: Record<
       githubImportPlaceholder: 'Enter owner/repo or GitHub URL',
       githubFetchButton: 'Fetch Live Metadata',
       fetchingGithub: 'Fetching...',
+      githubInvalidRepo: 'Enter owner/repo or https://github.com/owner/repo.',
+      githubNotFound: 'GitHub repository not found. Check the repository name.',
+      githubRateLimited:
+        'GitHub API rate limit reached. Try again later or configure GITHUB_TOKEN on the server.',
+      githubFetchFailed: 'Failed to fetch the GitHub repository. Please try again shortly.',
+      githubSyncSuccessPrefix: 'GitHub sync complete',
       nameLabel: 'Project Name *',
       taglineEnLabel: 'English Tagline (5-220 chars) *',
       taglineKoLabel: 'Korean Tagline',
@@ -799,9 +820,11 @@ export const UI_STRINGS: Record<
       submitting: 'Publishing...',
       signInPrompt: 'Sign in with Google to publish a verified listing to Firestore.',
       submitSuccess: 'Project published to the directory!',
+      publishFailed: 'Failed to publish the project. Please try again shortly.',
       draftRestoredNotice: 'Restored your previous in-progress draft from local storage.',
       draftAutosaveHint: 'Your notes and settings are automatically saved to local storage every 30 seconds.',
       clearDraftButton: 'Discard Draft',
+      dismissDraftNotice: 'Dismiss draft notice',
       validationSummaryPrefix: 'Please fix the highlighted fields',
     },
     maker: {

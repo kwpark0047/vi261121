@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
-import { AlertCircle, CheckCircle2, Github, LogIn, RefreshCw, RotateCcw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Github, LogIn, RefreshCw, RotateCcw, X } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type {
   AppLanguage,
@@ -112,6 +112,7 @@ export function SubmitProjectPage({
   const [ghMeta, setGhMeta] = useState<GitHubRepoMetadata | null>(null);
 
   const [draftRestored, setDraftRestored] = useState<boolean>(false);
+  const [draftNoticeDismissed, setDraftNoticeDismissed] = useState<boolean>(false);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<SubmitValidationField, string>>>(
     {}
   );
@@ -125,8 +126,13 @@ export function SubmitProjectPage({
   const userDisplayNameRef = useRef<string>(user?.displayName || '');
   userDisplayNameRef.current = user?.displayName || '';
 
+  // Suppresses the unmount flush once a submission has cleared the draft on purpose.
+  const submittedRef = useRef<boolean>(false);
+  const appliedDisplayNameRef = useRef<string>('');
+
   const updateField = useCallback(
     <K extends keyof SubmitProjectDraftFields>(key: K, value: SubmitProjectDraftFields[K]) => {
+      submittedRef.current = false;
       setFormState((prev) => ({ ...prev, [key]: value }));
       const errorKey = FIELD_KEY_TO_ERROR_KEY[key];
       if (errorKey) {
@@ -155,30 +161,53 @@ export function SubmitProjectPage({
         makerName: restored.makerName || userDisplayNameRef.current,
       });
       setDraftRestored(true);
+      setDraftNoticeDismissed(false);
     }
   }, []);
 
-  // Stringify and store formState in localStorage every 30 seconds
+  // Fill the maker name once Firebase restores the signed-in user (auth resolves after mount).
   useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      const snapshot = latestFormStateRef.current;
-      if (hasMeaningfulDraftChanges(snapshot, userDisplayNameRef.current)) {
-        saveSubmitDraft(snapshot);
-      }
-    }, AUTOSAVE_INTERVAL_MS);
+    const displayName = user?.displayName?.trim() || '';
+    if (!displayName || appliedDisplayNameRef.current === displayName) return;
+
+    appliedDisplayNameRef.current = displayName;
+    setFormState((prev) => (prev.makerName.trim() ? prev : { ...prev, makerName: displayName }));
+  }, [user]);
+
+  const persistDraftSnapshot = useCallback(() => {
+    if (submittedRef.current) return;
+    const snapshot = latestFormStateRef.current;
+    if (hasMeaningfulDraftChanges(snapshot, userDisplayNameRef.current)) {
+      saveSubmitDraft(snapshot);
+    }
+  }, []);
+
+  // Autosave every 30 seconds, and flush on tab close or route change so the last
+  // few seconds of edits are not lost between interval ticks.
+  useEffect(() => {
+    const intervalId = window.setInterval(persistDraftSnapshot, AUTOSAVE_INTERVAL_MS);
+    const handlePageHide = () => persistDraftSnapshot();
+
+    window.addEventListener('pagehide', handlePageHide);
 
     return () => {
       window.clearInterval(intervalId);
+      window.removeEventListener('pagehide', handlePageHide);
+      persistDraftSnapshot();
     };
-  }, []);
+  }, [persistDraftSnapshot]);
 
   const clearDraftAfterSubmission = useCallback(() => {
+    submittedRef.current = true;
     clearSubmitDraft();
     setDraftRestored(false);
   }, []);
 
   const handleClearDraft = () => {
-    clearDraftAfterSubmission();
+    clearSubmitDraft();
+    submittedRef.current = false;
+    setDraftRestored(false);
+    setDraftNoticeDismissed(false);
     setFormState({
       ...DEFAULT_SUBMIT_DRAFT_FIELDS,
       makerName: user?.displayName || DEFAULT_SUBMIT_DRAFT_FIELDS.makerName,
@@ -193,7 +222,7 @@ export function SubmitProjectPage({
     setGhFeedback(null);
     const slug = parseGitHubRepoSlug(formState.githubInput);
     if (!slug) {
-      setGhFeedback('owner/repo 또는 https://github.com/owner/repo 형식으로 입력하세요.');
+      setGhFeedback(copy.githubInvalidRepo);
       return;
     }
 
@@ -202,13 +231,20 @@ export function SubmitProjectPage({
       const resp = await fetch(`/api/github/repo?repo=${encodeURIComponent(slug)}`);
       const data = await resp.json();
       if (!resp.ok || !data.repo) {
-        setGhFeedback(data.error || 'GitHub 조회에 실패했습니다.');
+        setGhFeedback(
+          resp.status === 404
+            ? copy.githubNotFound
+            : resp.status === 429
+              ? copy.githubRateLimited
+              : copy.githubFetchFailed
+        );
         return;
       }
       const repo = data.repo as GitHubRepoMetadata;
       setGhMeta(repo);
       setFormState((prev) => ({
         ...prev,
+        githubInput: repo.fullName,
         name: prev.name.trim() ? prev.name : repo.name,
         tagline:
           !prev.tagline.trim() && repo.description
@@ -220,7 +256,10 @@ export function SubmitProjectPage({
               ? repo.description
               : `${repo.description} — Verified repository hosted on GitHub (${repo.fullName}).`
             : prev.description,
-        websiteUrl: repo.homepage && !prev.websiteUrl.trim() ? repo.homepage : prev.websiteUrl,
+        websiteUrl:
+          !prev.websiteUrl.trim() && repo.homepage && isSafeHttpUrl(repo.homepage)
+            ? repo.homepage
+            : prev.websiteUrl,
         githubUrl: repo.htmlUrl,
         license: repo.license || 'Unknown',
         techStackRaw:
@@ -231,11 +270,12 @@ export function SubmitProjectPage({
         makerHandle: prev.makerHandle.trim() ? prev.makerHandle : `@${repo.ownerLogin}`,
       }));
       setFieldErrors({});
+      const locale = language === 'ko' ? 'ko-KR' : 'en-US';
       setGhFeedback(
-        `GitHub 동기화 완료: ★ ${repo.stars.toLocaleString()} · Forks ${repo.forks.toLocaleString()} · ${repo.license}`
+        `${copy.githubSyncSuccessPrefix}: ★ ${repo.stars.toLocaleString(locale)} · Forks ${repo.forks.toLocaleString(locale)} · ${repo.license}`
       );
-    } catch (err) {
-      setGhFeedback(err instanceof Error ? err.message : 'Network error fetching GitHub.');
+    } catch {
+      setGhFeedback(copy.githubFetchFailed);
     } finally {
       setFetchingGh(false);
     }
@@ -350,7 +390,7 @@ export function SubmitProjectPage({
       clearDraftAfterSubmission();
       setSubmitSuccess(copy.submitSuccess);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Failed to publish project.');
+      setSubmitError(err instanceof Error && err.message ? err.message : copy.publishFailed);
     } finally {
       setSubmitting(false);
     }
@@ -375,17 +415,27 @@ export function SubmitProjectPage({
         </p>
       </div>
 
-      {draftRestored && (
+      {draftRestored && !draftNoticeDismissed && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-900 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
           <span>{copy.draftRestoredNotice}</span>
-          <button
-            type="button"
-            onClick={handleClearDraft}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-white px-3 py-1.5 font-medium text-blue-800 hover:bg-blue-100 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-200 dark:hover:bg-slate-800"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            <span>{copy.clearDraftButton}</span>
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleClearDraft}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-white px-3 py-1.5 font-medium text-blue-800 hover:bg-blue-100 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-200 dark:hover:bg-slate-800"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>{copy.clearDraftButton}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setDraftNoticeDismissed(true)}
+              aria-label={copy.dismissDraftNotice}
+              className="rounded-lg p-1.5 text-blue-800 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-slate-800"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       )}
 
