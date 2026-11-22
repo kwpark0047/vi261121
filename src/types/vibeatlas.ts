@@ -179,3 +179,19 @@ export interface GitHubRepoMetadata {
   pushedAt: string;
   fetchedAt: string;
 }
+
+export interface GitHubRankedRepo {
+  id: number;
+  rank: number;
+  fullName: string;
+  ownerLogin: string;
+  ownerAvatarUrl: string;
+  description: string;
+  htmlUrl: string;
+  stars: number;
+  forks: number;
+  language: string;
+  license: string;
+}
+
+export type GitHubTopRepoPreset = 'all' | 'web_apps' | 'ai_agents' | 'typescript' | 'python' | 'rust' | 'go';

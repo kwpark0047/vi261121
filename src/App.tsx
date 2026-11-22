@@ -40,6 +40,7 @@ const SubmitProjectPage = lazy(() => import('./components/SubmitProjectPage').th
 const MakerDashboardPage = lazy(() => import('./components/MakerDashboardPage').then((m) => ({ default: m.MakerDashboardPage })));
 const AdminDashboardPage = lazy(() => import('./components/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })));
 const ProjectDetailModal = lazy(() => import('./components/ProjectDetailModal').then((m) => ({ default: m.ProjectDetailModal })));
+const GitHubStarsPage = lazy(() => import('./components/GitHubStarsPage').then((m) => ({ default: m.GitHubStarsPage })));
 
 const STORAGE_LANG_KEY = 'vibeatlas_lang_v1';
 const STORAGE_THEME_KEY = 'vibeatlas_theme_v1';
@@ -500,14 +501,11 @@ export default function App() {
           {activePage === 'github-stars' && (
             <Suspense fallback={null}>
               <div className="min-h-screen p-8">
-                <p className="text-center text-lg">
-                  {language === 'ko' ? 'GitHub 스타 페이지' : 'GitHub Stars Page'}
-                </p>
-                <p className="mt-4">
-                  {language === 'ko'
-                    ? '준비 중입니다. Discover 페이지에서 GitHub 별수 정렬을 이용해 보세요.'
-                    : 'Coming soon. Try the GitHub stars sort on Discover page.'}
-                </p>
+                <GitHubStarsPage
+                  language={language}
+                  catalogProjects={allProjects}
+                  onOpenDetail={(p) => setSelectedSlug(p.slug)}
+                />
               </div>
             </Suspense>
           )}
