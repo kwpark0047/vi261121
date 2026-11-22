@@ -828,6 +828,40 @@ export const ADMIN_STRINGS: Record<
     };
     reasons: Record<ProjectReportRecord['reason'], string>;
     methods: Record<OwnershipClaimRecord['verificationMethod'], string>;
+    points?: {
+      title: string;
+      earned: string;
+      total: string;
+      event: string;
+      date: string;
+      noData: string;
+      subtitle: string;
+    };
+    referrals?: {
+      title: string;
+      myCode: string;
+      shareLink: string;
+      codeCopied: string;
+      generateCode: string;
+      generateCodeSuccess: string;
+      codeAlreadyExists: string;
+      referrer: string;
+      referee: string;
+      referralEarned: string;
+      refereeBonus: string;
+      subtitle: string;
+    };
+    redemptions?: {
+      title: string;
+      type: string;
+      pointsSpent: string;
+      statusPending: string;
+      statusApproved: string;
+      statusRejected: string;
+      submit: string;
+      confirmDelete: string;
+      subtitle: string;
+    };
   }
 > = {
   ko: {
@@ -1004,6 +1038,40 @@ export const ADMIN_STRINGS: Record<
       github_repo: 'GitHub repository',
       domain_dns: 'Domain DNS',
       demo_meta: 'Demo metadata',
+    },
+    points: {
+      title: '포인트 현황',
+      earned: '적립 포인트',
+      total: '총 포인트',
+      event: '이벤트',
+      date: '날짜',
+      noData: '기록이 없습니다.',
+      subtitle: '적립된 포인트 내역을 확인하세요.',
+    },
+    referrals: {
+      title: '추천코드',
+      myCode: '내 코드',
+      shareLink: '공유 링크',
+      codeCopied: '복사되었습니다!',
+      generateCode: '추천코드 생성',
+      generateCodeSuccess: '추천코드가 생성되었습니다. 20포인트가 적립되었습니다.',
+      codeAlreadyExists: '이미 생성된 코드가 있습니다.',
+      referrer: '추천인',
+      referee: '피추천인',
+      referralEarned: '추천으로 Earned',
+      subtitle: '추천인 코드를 통한 포인트 적립 내역입니다.',
+      refereeBonus: '피추천이 Earned',
+    },
+    redemptions: {
+      title: '환급 신청',
+      type: '환급 유형',
+      pointsSpent: '소모 포인트',
+      statusPending: '접수 대기',
+      statusApproved: '승인',
+      statusRejected: '거절',
+      submit: '신청',
+      confirmDelete: '정말로 삭제하시겠습니까?',
+      subtitle: '포인트를 사용하여 상품을 신청할 수 있습니다.',
     },
   },
 };

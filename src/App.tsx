@@ -96,6 +96,11 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  const navigateTo = (page: string) => {
+    if (page === 'admin') setActivePage('admin' as ActivePage);
+    else setActivePage(page as ActivePage);
+  };
+
   const [firestoreProjects, setFirestoreProjects] = useState<CatalogProject[]>([]);
   const [githubSyncedMap, setGithubSyncedMap] = useState<Record<string, GitHubRepoMetadata>>(() =>
     readGithubSessionCache()
@@ -392,7 +397,7 @@ export default function App() {
           bookmarkCount={effectiveBookmarks.size}
           onSignIn={() => void handleSignIn()}
           onSignOut={() => void handleSignOut()}
-          onNavigate={setActivePage}
+          onNavigate={navigateTo}
         />
 
         {authError && (
@@ -418,7 +423,7 @@ export default function App() {
                 onToggleLike={(p) => void handleToggleLike(p)}
                 onToggleBookmark={(p) => void handleToggleBookmark(p)}
                 onSearchAndDiscover={handleSearchAndDiscover}
-                onNavigate={setActivePage}
+                onNavigate={navigateTo}
                 onSignIn={() => void handleSignIn()}
                 onSubscribeNewsletter={async (email) => {
                   if (!user) throw new Error('Sign in required');
@@ -469,7 +474,7 @@ export default function App() {
                 claims={userClaims}
                 syncingProjectId={syncingProjectId}
                 onSignIn={() => void handleSignIn()}
-                onNavigate={setActivePage}
+                onNavigate={navigateTo}
                 onOpenDetail={(p) => setSelectedSlug(p.slug)}
                 onToggleLike={(p) => void handleToggleLike(p)}
                 onToggleBookmark={(p) => void handleToggleBookmark(p)}
@@ -486,7 +491,7 @@ export default function App() {
                 user={user}
                 authLoading={authLoading}
                 projects={allProjects}
-                onNavigate={setActivePage}
+                onNavigate={navigateTo}
                 onOpenDetail={(p) => setSelectedSlug(p.slug)}
               />
             </Suspense>

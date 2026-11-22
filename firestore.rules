@@ -372,5 +372,25 @@ service cloud.firestore {
         isValidId(subId) &&
         (existing().uid == request.auth.uid || isAdmin());
     }
+
+    // pointsLog — admin-only writes; users can read their own
+    match /pointsLog/{docId} {
+      allow read: if isSignedIn() && request.auth.uid == resource.data.uid;
+      allow create: if isAdmin() &&
+        request.resource.data.keys().hasOnly([
+          'uid', 'event', 'points', 'relatedId', 'meta', 'createdAt'
+        ]) &&
+        request.resource.data.data.createdAt == request.time;
+    }
+
+    // referral codes — public read, admin write
+    match /referralCodes/{code} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() &&
+        request.resource.data.keys().hasOnly([
+          'uid', 'referralCode', 'referredCount', 'totalEarnedPoints',
+          'referredUsers', 'referredPointsAwarded', 'createdAt', 'updatedAt'
+        ]);
+    }
   }
 }
