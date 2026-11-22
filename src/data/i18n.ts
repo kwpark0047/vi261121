@@ -157,6 +157,23 @@ export const UI_STRINGS: Record<
       actionSubmitted: string;
       signInRequired: string;
     };
+    projectActivity: {
+      title: string;
+      empty: string;
+      loading: string;
+      error: string;
+      like: string;
+      bookmark: string;
+      report: string;
+      claim: string;
+      unknown: string;
+      pending: string;
+      approved: string;
+      rejected: string;
+      open: string;
+      reviewed: string;
+      resolved: string;
+    };
     submit: {
       title: string;
       subtitle: string;
@@ -437,6 +454,23 @@ export const UI_STRINGS: Record<
       actionSubmitted: 'Firestore에 안전하게 기록되었습니다.',
       signInRequired: '이 작업을 저장하려면 Google 로그인이 필요합니다.',
     },
+    projectActivity: {
+      title: '커뮤니티 활동',
+      empty: '아직 기록된 활동이 없습니다',
+      loading: '활동을 불러오는 중…',
+      error: '활동을 불러오지 못했습니다',
+      like: '좋아요',
+      bookmark: '북마크',
+      report: '신고',
+      claim: '소유권 인증',
+      unknown: '알 수 없음',
+      pending: '대기',
+      approved: '승인',
+      rejected: '거부',
+      open: '미처리',
+      reviewed: '검토됨',
+      resolved: '해결됨',
+    },
     submit: {
       title: '새 프로젝트 등록',
       subtitle: '검증 가능한 메타데이터를 입력하면 즉시 디렉터리에 게시되고 Firestore에 저장됩니다.',
@@ -715,6 +749,23 @@ export const UI_STRINGS: Record<
       submitClaim: 'Submit Claim',
       actionSubmitted: 'Saved securely to Firestore.',
       signInRequired: 'Please sign in with Google to save this action.',
+    },
+    projectActivity: {
+      title: 'Community Activity',
+      empty: 'No activity recorded yet',
+      loading: 'Loading activity…',
+      error: 'Could not load activity',
+      like: 'Like',
+      bookmark: 'Bookmark',
+      report: 'Report',
+      claim: 'Ownership Claim',
+      unknown: 'Unknown',
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      open: 'Open',
+      reviewed: 'Reviewed',
+      resolved: 'Resolved',
     },
     submit: {
       title: 'Submit a Project',

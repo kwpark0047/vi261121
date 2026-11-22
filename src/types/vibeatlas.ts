@@ -152,6 +152,18 @@ export interface ProjectReportRecord {
   updatedAtIso?: string;
 }
 
+export interface ProjectActivityRecord {
+  id: string;
+  projectId: string;
+  kind: 'like' | 'bookmark' | 'report' | 'claim';
+  actorUid?: string;
+  actorLabel?: string;
+  note?: string;
+  status?: 'open' | 'reviewed' | 'resolved' | 'pending' | 'approved' | 'rejected';
+  method?: 'github_repo' | 'domain_dns' | 'demo_meta';
+  createdAtIso: string;
+}
+
 export interface OwnershipClaimRecord {
   id: string;
   projectId: string;

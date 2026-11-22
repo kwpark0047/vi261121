@@ -526,6 +526,7 @@ export default function App() {
             user={user}
             isLiked={selectedProject ? guestLikes.has(selectedProject.id) : false}
             isBookmarked={selectedProject ? effectiveBookmarks.has(selectedProject.id) : false}
+            userReports={userReports}
             isSyncing={Boolean(selectedProject && syncingProjectId === selectedProject.id)}
             onClose={() => setSelectedSlug(null)}
             onSelectProject={(p) => setSelectedSlug(p.slug)}

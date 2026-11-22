@@ -17,10 +17,12 @@ import {
 } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { db, handleFirestoreError, OperationType } from './firebase';
+import { mergeAndSortCommunityActivities } from './communityActivity';
 import type {
   AppLanguage,
   CatalogProject,
   OwnershipClaimRecord,
+  ProjectActivityRecord,
   ProjectReportRecord,
   VerificationStatus,
 } from '../types/vibeatlas';
@@ -429,6 +431,84 @@ export function subscribeToUserClaims(
 // validate. Updates send the full existing document because the project rules
 // re-validate the complete shape on every write.
 // ---------------------------------------------------------------------------
+
+/**
+ * Viewer-scoped project activity: composes the app's existing user-scoped
+ * report/claim subscriptions (the Firestore rules expose those to the
+ * reporter/claimant and admins only) filtered to one project. Likes and
+ * bookmarks are not readable per-viewer on today's rules, so those arrive via
+ * `localActivities` supplied by the parent when a caller can source them.
+ * Snapshot failures surface through the repo's shared handleFirestoreError
+ * (matching every other subscription in this module).
+ */
+export function subscribeToProjectActivities(
+  projectId: string,
+  viewerUid: string | null,
+  onData: (activities: ProjectActivityRecord[]) => void
+): Unsubscribe {
+  if (!viewerUid) {
+    onData([]);
+    return () => undefined;
+  }
+
+  const unsubscribes: Unsubscribe[] = [];
+  let reportItems: ProjectActivityRecord[] = [];
+  let claimItems: ProjectActivityRecord[] = [];
+
+  const emit = (): void => {
+    onData(
+      mergeAndSortCommunityActivities({
+        projectId,
+        firestoreActivities: [...reportItems, ...claimItems],
+      })
+    );
+  };
+
+  unsubscribes.push(
+    subscribeToUserReports(
+      viewerUid,
+      (list) => {
+        reportItems = list
+          .filter((report) => report.projectId === projectId)
+          .map((report) => ({
+            id: `report:${report.id}`,
+            projectId: report.projectId,
+            kind: 'report' as const,
+            actorUid: report.reporterUid,
+            note: report.details,
+            status: report.status,
+            createdAtIso: report.createdAtIso,
+          }));
+        emit();
+      }
+    )
+  );
+
+  unsubscribes.push(
+    subscribeToUserClaims(
+      viewerUid,
+      (list) => {
+        claimItems = list
+          .filter((claim) => claim.projectId === projectId)
+          .map((claim) => ({
+            id: `claim:${claim.id}`,
+            projectId: claim.projectId,
+            kind: 'claim' as const,
+            actorUid: claim.claimantUid,
+            note: claim.proofNote,
+            status: claim.status,
+            method: claim.verificationMethod,
+            createdAtIso: claim.createdAtIso,
+          }));
+        emit();
+      }
+    )
+  );
+
+  return () => {
+    for (const unsubscribe of unsubscribes) unsubscribe();
+  };
+}
 
 export function subscribeToAllReports(
   onData: (reports: ProjectReportRecord[]) => void,

@@ -20,6 +20,7 @@ import type {
   AppLanguage,
   CatalogProject,
   OwnershipClaimRecord,
+  ProjectActivityRecord,
   ProjectReportRecord,
 } from '../types/vibeatlas';
 import {
@@ -37,7 +38,10 @@ import {
   formatCompactCount,
   getRelatedProjects,
 } from '../lib/catalogEngine';
+import { mergeAndSortCommunityActivities } from '../lib/communityActivity';
+import { subscribeToProjectActivities } from '../lib/firestoreRepo';
 import { sanitizeExternalUrl, ownershipClaimSchema, reportSubmissionSchema } from '../lib/validation';
+import { ProjectCommunityActivity } from './ProjectCommunityActivity';
 import { ProjectGrowthChart } from './ProjectGrowthChart';
 const GrowthChart = lazy(() => import('./ProjectGrowthChart').then((m) => ({ default: m.ProjectGrowthChart })));
 
@@ -49,6 +53,8 @@ interface ProjectDetailModalProps {
   isLiked: boolean;
   isBookmarked: boolean;
   isSyncing: boolean;
+  localActivities?: ReadonlyArray<ProjectActivityRecord>;
+  userReports?: ReadonlyArray<ProjectReportRecord>;
   onClose: () => void;
   onSelectProject: (project: CatalogProject) => void;
   onToggleLike: (project: CatalogProject) => void;
@@ -75,6 +81,8 @@ export function ProjectDetailModal({
   isLiked,
   isBookmarked,
   isSyncing,
+  localActivities = [],
+  userReports = [],
   onClose,
   onSelectProject,
   onToggleLike,
@@ -94,6 +102,8 @@ export function ProjectDetailModal({
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [firestoreActivities, setFirestoreActivities] = useState<ProjectActivityRecord[]>([]);
+  const [activityLoading, setActivityLoading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -119,10 +129,42 @@ export function ProjectDetailModal({
     setClaimProof('');
   }, [project?.id]);
 
+  useEffect(() => {
+    if (!project) {
+      setFirestoreActivities([]);
+      setActivityLoading(false);
+      return;
+    }
+    setActivityLoading(true);
+    const unsubscribe = subscribeToProjectActivities(
+      project.id,
+      user?.uid ?? null,
+      (list) => {
+        setFirestoreActivities(list);
+        setActivityLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, [project?.id]);
+
   const related = useMemo(() => {
     if (!project) return [];
     return getRelatedProjects(project, allProjects, 3);
   }, [project, allProjects]);
+
+  const communityActivities = useMemo(
+    () =>
+      project
+        ? mergeAndSortCommunityActivities({
+            projectId: project.id,
+            firestoreActivities,
+            localActivities,
+            userReports,
+            currentUser: user ? { uid: user.uid, name: user.displayName ?? undefined } : null,
+          })
+        : [],
+    [project, firestoreActivities, localActivities, userReports, user]
+  );
 
   if (!project) return null;
 
@@ -622,6 +664,13 @@ export function ProjectDetailModal({
               onSyncSingleGithub={onSyncSingleGithub}
             />
           </Suspense>
+
+          {/* Chronological Community Activity Feed (viewer-scoped) */}
+          <ProjectCommunityActivity
+            language={language}
+            activities={communityActivities}
+            loading={activityLoading}
+          />
 
           {/* Related Projects */}
           {related.length > 0 && (
