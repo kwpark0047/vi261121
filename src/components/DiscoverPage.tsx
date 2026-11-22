@@ -166,6 +166,26 @@ export function DiscoverPage({
         </select>
       </div>
 
+      {/* Ranking Sort */}
+      <div>
+        <label htmlFor="filter-ranking" className="block text-xs font-medium text-slate-600 dark:text-slate-300">
+          {copy.sortBy}
+        </label>
+        <select
+          id="filter-ranking"
+          value={filters.sort}
+          onChange={(e) => onUpdateFilters({ sort: e.target.value as SortOption })}
+          className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        >
+          <option value="relevance">{copy.sortRelevance}</option>
+          <option value="most_liked">{copy.sortMostLiked}</option>
+          <option value="most_bookmarked">{copy.sortMostBookmarked}</option>
+          <option value="most_starred">{copy.sortMostStarred}</option>
+          <option value="recently_added">{copy.sortRecentlyAdded}</option>
+          <option value="recently_updated">{copy.sortRecentlyUpdated}</option>
+        </select>
+      </div>
+
       {/* Hosting Provider */}
       <div>
         <label htmlFor="filter-hosting" className="block text-xs font-medium text-slate-600 dark:text-slate-300">

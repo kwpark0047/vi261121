@@ -108,6 +108,24 @@ export function ProjectCard({
           )}
         </div>
 
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-medium text-slate-700 dark:text-slate-300">{typeLabel}</span>
+          <span aria-hidden="true">·</span>
+          <span>{project.country}</span>
+          <span aria-hidden="true">·</span>
+          {verificationNode}
+          {freshness === 'stale' && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span className="text-amber-700 dark:text-amber-400">{copy.staleLabel}</span>
+            </>
+          )}
+          <span className="text-indigo-600 dark:text-indigo-400 font-medium">
+            {project.likesCount} {copy.internalLikes} ·
+            {project.bookmarksCount} {copy.internalBookmarks}
+          </span>
+        </div>
+
         <h3 className="mt-2 text-base font-semibold leading-snug text-slate-900 dark:text-white">
           <button
             type="button"

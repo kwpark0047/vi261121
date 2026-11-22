@@ -8,6 +8,7 @@ import {
   GitFork,
   Heart,
   HelpCircle,
+  Maximize,
   RefreshCw,
   ShieldCheck,
   Star,
@@ -38,6 +39,8 @@ import {
 import { sanitizeExternalUrl, ownershipClaimSchema, reportSubmissionSchema } from '../lib/validation';
 import { ProjectGrowthChart } from './ProjectGrowthChart';
 const GrowthChart = lazy(() => import('./ProjectGrowthChart').then((m) => ({ default: m.ProjectGrowthChart })));
+
+const IS_MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 interface ProjectDetailModalProps {
   project: CatalogProject | null;
@@ -92,6 +95,8 @@ export function ProjectDetailModal({
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isFullscreen, setIsFullscreen] =
+    useState<'normal' | 'fullscreen'>('normal');
 
   useEffect(() => {
     if (!project) return;
@@ -196,7 +201,7 @@ export function ProjectDetailModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950">
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950 max-w-4xl overflow-y-auto ${isFullscreen === 'fullscreen' ? 'h-full' : IS_MOBILE ? 'h-full' : 'max-h-[92vh]' } transition-all duration-300 ease-out">
         {/* Top Modal Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95">
           <div className="min-w-0">
@@ -229,6 +234,16 @@ export function ProjectDetailModal({
           >
             <X className="h-4 w-4" />
           </button>
+          {!IS_MOBILE && (
+            <button
+              type="button"
+              aria-label={copy.fullscreenExit}
+              onClick={() => setIsFullscreen((prev) => (prev ? 'normal' : 'fullscreen'))}
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/50"
+            >
+              <Maximize className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="space-y-8 p-6">

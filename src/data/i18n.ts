@@ -88,6 +88,13 @@ export const UI_STRINGS: Record<
       filterLicense: string;
       filterPricing: string;
       filterVerification: string;
+      sortBy: string;
+      sortRelevance: string;
+      sortMostLiked: string;
+      sortMostBookmarked: string;
+      sortMostStarred: string;
+      sortRecentlyAdded: string;
+      sortRecentlyUpdated: string;
       filterMinStars: string;
       filterUpdatedWithin: string;
       allOption: string;
@@ -108,6 +115,7 @@ export const UI_STRINGS: Record<
     };
     detail: {
       close: string;
+      fullscreenExit: string;
       externalLinksTitle: string;
       internalActionsTitle: string;
       liveDemo: string;
@@ -315,6 +323,13 @@ export const UI_STRINGS: Record<
       filterLicense: '라이선스',
       filterPricing: '가격 모델',
       filterVerification: '검증 상태',
+      sortBy: '정렬 기준',
+      sortRelevance: '관련도',
+      sortMostLiked: '좋아요 많은 순',
+      sortMostBookmarked: '북마크 많은 순',
+      sortMostStarred: 'GitHub 스타 많은 순',
+      sortRecentlyAdded: '최신 추가 순',
+      sortRecentlyUpdated: '최근 업데이트 순',
       filterMinStars: '최소 GitHub 스타',
       filterUpdatedWithin: '최근 업데이트',
       allOption: '전체',
@@ -335,6 +350,7 @@ export const UI_STRINGS: Record<
     },
     detail: {
       close: '닫기',
+      fullscreenExit: '풀스크린 종료',
       externalLinksTitle: '외부 링크 (외부 사이트로 이동)',
       internalActionsTitle: 'W-Vibe 내부 액션',
       liveDemo: '라이브 데모',
@@ -541,6 +557,13 @@ export const UI_STRINGS: Record<
       filterLicense: 'License',
       filterPricing: 'Pricing',
       filterVerification: 'Verification',
+      sortBy: 'Sort by',
+      sortRelevance: 'Relevance',
+      sortMostLiked: 'Most Liked',
+      sortMostBookmarked: 'Most Bookmarked',
+      sortMostStarred: 'Most Starred',
+      sortRecentlyAdded: 'Recently Added',
+      sortRecentlyUpdated: 'Recently Updated',
       filterMinStars: 'Min GitHub Stars',
       filterUpdatedWithin: 'Last Updated',
       allOption: 'All',
@@ -561,6 +584,7 @@ export const UI_STRINGS: Record<
     },
     detail: {
       close: 'Close',
+      fullscreenExit: 'Exit Fullscreen',
       externalLinksTitle: 'External Links (Leaves W-Vibe)',
       internalActionsTitle: 'W-Vibe Actions',
       liveDemo: 'Live Demo',

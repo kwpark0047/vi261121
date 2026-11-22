@@ -1,4 +1,13 @@
-import { Bookmark, LogIn, LogOut, Moon, ShieldCheck, Sun, User as UserIcon } from 'lucide-react';
+import {
+  Bookmark,
+  LogIn,
+  LogOut,
+  Moon,
+  ShieldCheck,
+  Settings,
+  Sun,
+  User as UserIcon,
+} from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { ActivePage, AppLanguage } from '../types/vibeatlas';
 import { ADMIN_STRINGS, UI_STRINGS } from '../data/i18n';
@@ -31,6 +40,7 @@ export function WorkspaceBar({
 }: WorkspaceBarProps) {
   const copy = UI_STRINGS[language].workspace;
   const adminRole = getAdminRole(user);
+  const isAdmin = adminRole !== null;
 
   return (
     <div className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/60">
@@ -77,7 +87,7 @@ export function WorkspaceBar({
         </div>
 
         <div className="flex items-center gap-2">
-          {adminRole && (
+          {isAdmin && (
             <button
               type="button"
               onClick={() => onNavigate('admin')}
@@ -94,7 +104,7 @@ export function WorkspaceBar({
           <button
             type="button"
             onClick={() => onNavigate('maker')}
-            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             <Bookmark className="h-3.5 w-3.5" />
             <span>{copy.savedBookmarks}</span>
@@ -103,27 +113,52 @@ export function WorkspaceBar({
             </span>
           </button>
 
+          {/* User settings/profile button - appears when logged in; admin gets ShieldCheck badge */}
           {user ? (
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => onNavigate('maker')}
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
-              >
-                <UserIcon className="h-3.5 w-3.5 text-blue-700 dark:text-blue-400" />
-                <span className="max-w-[140px] truncate">
-                  {user.displayName || user.email || copy.makerAccount}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={onSignOut}
-                aria-label={copy.signOut}
-                className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{copy.signOut}</span>
-              </button>
+              {isAdmin ? (
+                <button
+                  type="button"
+                  onClick={() => onNavigate('admin')}
+                  className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-800 transition-colors hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/50"
+                  aria-label={isAdmin ? 'Admin dashboard' : 'Profile'}
+                >
+                  <ShieldCheck className="h-3 w-3" />
+                  <span className="hidden sm:inline">{isAdmin ? ADMIN_STRINGS[language].navLabel : '내 프로필'}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onNavigate('maker')}
+                  className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-800 transition-colors hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/50"
+                  aria-label="내 프로필"
+                >
+                  <Settings className="h-3 w-3" />
+                  <span className="hidden sm:inline">내 프로필</span>
+                </button>
+              )}
+
+              {isAdmin ? (
+                <button
+                  type="button"
+                  onClick={onSignOut}
+                  aria-label={copy.signOut}
+                  className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{copy.signOut}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={authLoading}
+                  onClick={onSignIn}
+                  className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 transition-colors hover:bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                >
+                  <LogIn className="h-3.5 w-3.5 text-blue-700 dark:text-blue-400" />
+                  <span>{copy.signInGoogle}</span>
+                </button>
+              )}
             </div>
           ) : (
             <button
