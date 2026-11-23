@@ -2,6 +2,7 @@ import {
   GITHUB_CACHE_TTL_MS,
   GITHUB_FETCH_TIMEOUT_MS,
 } from '../../src/lib/githubRepo.ts';
+import { readJsonBody } from '../../src/lib/responseJson.ts';
 import type { GitHubRankedRepo, GitHubTopRepoPreset } from '../../src/types/vibeatlas';
 
 export interface GitHubTopStarredResponse {
@@ -218,7 +219,12 @@ async function handleTopStarred(req: Request): Promise<Response> {
   }
 
   try {
-    const data = asRecord(await resp.json());
+    const body = await readJsonBody(resp);
+    if (!body.ok) {
+      // `incomplete_results` can be true for broad queries; serve what we got.
+      throw new Error('GitHub API returned an unreadable response body.');
+    }
+    const data = asRecord(body.value);
     const rawItems = data && Array.isArray(data.items) ? data.items : [];
     const items = rawItems
       .map((value, index) => {

@@ -61,7 +61,8 @@ test('fetchGitHubRepoFromApi: happy path maps fields', async () => {
       assert.equal(result.data.language, 'Rust');
       assert.deepEqual(result.data.topics, ['demo']);
       assert.equal(result.data.ownerLogin, 'Happy');
-      assert.equal(typeof result.data.fetchedAt, 'string');
+      assert.equal(result.data.pushedAt, '2026-01-01T00:00:00Z');
+      assert.ok(typeof result.data.fetchedAt === 'string' && result.data.fetchedAt.length > 0);
     }
   } finally {
     globalThis.fetch = originalFetch;

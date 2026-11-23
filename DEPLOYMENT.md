@@ -14,7 +14,7 @@
               ├─ /api/github/repo          (GitHub REST 조회, 15분 캐시)
               ├─ /api/github/sync-batch      (최대 12개 일괄, GitHub REST 조회)
                ├─ /api/github/top-starred     (GitHub Stars 랭킹 검색 + 인메모리 캐시)
-               └─ /api/github/translate-descriptions (설명 번역 프록시)    (최대 12개 일괄, GitHub REST 조회)
+               └─ /api/github/translate-descriptions (설명 번역 프록시)
 브라우저 → Firebase (Google 팝업 인증 + Firestore)
 ```
 

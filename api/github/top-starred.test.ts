@@ -53,6 +53,21 @@ test('"all" preset maps to a real search query and parses items', async () => {
   }
 });
 
+test('2xx non-JSON upstream body → 502 with a readable error, never a raw parse message', async () => {
+  process.env.GITHUB_TOKEN = 'test-token';
+  globalThis.fetch = (async () =>
+    new Response('<html>proxy error page</html>', { status: 200 })) as typeof fetch;
+  try {
+    const resp = await topStarred(new Request('http://localhost/api/github/top-starred?preset=go'));
+    assert.equal(resp.status, 502);
+    const body = (await resp.json()) as { error?: string; items?: unknown[] };
+    assert.equal(body.error, 'GitHub API returned an unreadable response body.');
+    assert.deepEqual(body.items, []);
+  } finally {
+    restore(originalToken, originalFetch);
+  }
+});
+
 test('2xx items are mapped into ranked entries', async () => {
   process.env.GITHUB_TOKEN = 'test-token';
   globalThis.fetch = (async () =>
