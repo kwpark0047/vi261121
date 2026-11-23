@@ -19,10 +19,15 @@ View your app in AI Studio: https://ai.studio/apps/a9cb00bc-75a9-456f-a589-78399
 
 Notes:
 
-- `GEMINI_API_KEY` appears only in `.env.example` and app metadata as a
-  platform-side declaration; no in-repo code path reads it, and the
-  `@google/genai` npm package was removed as unused. Only relevant if/when
-  server-side Gemini features are actually wired in.
-- Quality gates: `bun run lint` (TypeScript check) and `bun test` (rule/unit tests).
+- `GEMINI_API_KEY` is read by the server-side description translation proxy
+  `api/github/translate-descriptions.ts` (called with a Gemini REST
+  `x-goog-api-key` header; unset → 401 `MISSING_API_KEY`). It is declared in
+  `.env.example` and, per `DEPLOYMENT.md`, is configured as a platform
+  environment variable/secret for serverless deploys — not inlined into the
+  client bundle.
+- Quality gates: `bun run lint` (TypeScript check), `bun test` (unit + rules
+  source-pattern tests; the rules *emulator* suite is opt-in via
+  `RULES_EMULATOR_TESTS=1` + a local emulator — see `DEPLOYMENT.md`),
+  `bun run build`.
 
 - Self-hosting / free deployment (Vercel Hobby + Firebase Spark): see `DEPLOYMENT.md`.

@@ -380,7 +380,7 @@ service cloud.firestore {
         request.resource.data.keys().hasOnly([
           'uid', 'event', 'points', 'relatedId', 'meta', 'createdAt'
         ]) &&
-        request.resource.data.data.createdAt == request.time;
+        request.resource.data.createdAt == request.time;
     }
 
     // referral codes — public read, admin write

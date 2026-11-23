@@ -38,7 +38,8 @@
 
 - `curl https://<도메인>/api/health` → `{ok:true,...}` 확인(함수 라우팅·재작성 충돌 점검).
 - 딥링크 새로고침(히스토리 폴백), Google 로그인 팝업, 카탈로그 조회, 좋아요/북마크, GitHub 연동 조회.
-- 로컬 게이트: `bun run lint`, `bun test`(16 skip), `RULES_EMULATOR_TESTS=1 bun run test:rules`(16 pass).
+- 로컬 게이트: `bun run lint`, `bun test`(단위 + 규칙 소스 패턴 테스트; 에뮬레이터 불필요), `bun run build`; 규칙 에뮬레이터 평가는 `bun run rules:emulator` + `RULES_EMULATOR_TESTS=1 bun run test:rules`(로컬 JVM 에뮬레이터 필요, 미사용 시 skip).
+  - 최근 측정값(2026-11-23, Bun 1.4.2 / Node 24): `bun test` → 58 pass · 19 skip · 0 fail (12 files), 규칙 소스 패턴 테스트 6 pass. 테스트 수는 추가/변경에 따라 변동 — 수치가 아니라 명령이 계약.
 
 ## 4. 무료 운용 노트 (조사값)
 

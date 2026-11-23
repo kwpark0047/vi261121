@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
+    "test": "bun test",
     "rules:emulator": "firebase emulators:start --only firestore --project demo-vibeatlas-rules",
     "test:rules": "bun test firestore.rules.emulator.test.ts"
   },

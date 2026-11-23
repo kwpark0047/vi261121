@@ -28,7 +28,21 @@
 11. **Terminal State / Claim Auto-Approval**: Creating or updating `/ownershipClaims/c1` with `status: "approved"` as claimant.
 12. **Blanket List Query Scraping**: Running `list` on `/reports` or `/ownershipClaims` as a regular user without scoping to `reporterUid == request.auth.uid` / `claimantUid == request.auth.uid`.
 
-## 4. Documented Public Surface
+## 4. Credential Hygiene (operational notes)
+
+- `firebase-applet-config.json` is imported by `src/lib/firebase.ts` and bundled
+  into the client build, so its values are shipped to every browser that loads
+  the app. Firebase web API keys are identifiers rather than secrets; the control
+  surface is API restriction in the Firebase/Google Cloud console (limit the key
+  to required APIs and HTTP referrers/sources) and rotation when exposure is
+  suspected. Rotation = update the config + rebuild/redeploy.
+- Server-side secrets (`GITHUB_TOKEN`, `GEMINI_API_KEY`, `PIXABAY_API_KEY`, ...)
+  belong in platform env/secrets per `.env.example`; real values must never be
+  committed.
+- Local toolchain logs (`firebase-debug.log`, `firestore-debug.log`, `.env*`) are
+  gitignored; keep them out of commits and sweep them when finished.
+
+## 5. Documented Public Surface
 
 - `match /test/connection` allows `get` for anyone (`allow get: if true`). It is
   an intentional reachability probe (client `testConnection()` in

@@ -28,7 +28,20 @@ test('firestore.rules restricts PII and list scraping', () => {
 test('firestore.rules recognizes main and sub admins behind verified email', () => {
   assert.match(rulesSource, /function isAdmin\(\) \{\s*return isVerifiedUser\(\)/);
   assert.match(rulesSource, /kwpark0047@gmail\.com/);
-  assert.match(rulesSource, /kwpark0047@iceu\.kr/);
+
+  // Admin emails are duplicated in src/lib/admin.ts (UI side). Rules cannot
+  // import TS, so guard against drift: any address declared there must also
+  // appear in the rules' isAdmin(), and vice versa.
+  const adminSource = fs.readFileSync(
+    new URL('./src/lib/admin.ts', import.meta.url),
+    'utf8',
+  );
+  const mainEmail = /MAIN_ADMIN_EMAIL = '([^']+)'/.exec(adminSource)?.[1];
+  const subEmail = /SUB_ADMIN_EMAIL = '([^']+)'/.exec(adminSource)?.[1];
+  assert.ok(mainEmail, 'MAIN_ADMIN_EMAIL not found in src/lib/admin.ts');
+  assert.ok(subEmail, 'SUB_ADMIN_EMAIL not found in src/lib/admin.ts');
+  assert.match(rulesSource, new RegExp(mainEmail!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(rulesSource, new RegExp(subEmail!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 });
 
 test('firestore.rules enforces atomic counter sync with existsAfter and getAfter', () => {
