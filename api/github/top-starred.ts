@@ -22,15 +22,14 @@ interface LeaderboardCacheEntry {
 const leaderboardCache = new Map<GitHubTopRepoPreset, LeaderboardCacheEntry>();
 
 /**
- * GitHub has no canonical search qualifier for every cohort below. The four
- * language presets map to real search API params; `web_apps` and `ai_agents`
- * are best-effort text heuristics over the search index and will be refined
- * as we can validate them against the live API. `all` is kept for API/UI
- * compatibility only — GitHub search requires a non-empty `q`, so the handler
- * rejects it explicitly instead of silently dropping the parameter.
+ * GitHub has no canonical search qualifier for every cohort below. `all` maps to
+ * `stars:>0` (the star-sorted top of the index); the four language presets map to
+ * real search API params; `web_apps` and `ai_agents` are best-effort text
+ * heuristics over the search index and will be refined as we can validate them
+ * against the live API.
  */
 const PRESET_QUERY: Record<GitHubTopRepoPreset, string> = {
-  all: '',
+  all: 'stars:>0',
   web_apps: '"web app" OR webapp',
   ai_agents: '"ai agent" OR "coding agent"',
   typescript: 'language:typescript',

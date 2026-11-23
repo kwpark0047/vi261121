@@ -31,19 +31,23 @@ test('missing GITHUB_TOKEN → 401 MISSING_API_KEY with empty items', async () =
   }
 });
 
-test('"all" preset with a token → 400 INVALID_PRESET_QUERY (no fetch attempted)', async () => {
+test('"all" preset maps to a real search query and parses items', async () => {
   process.env.GITHUB_TOKEN = 'test-token';
-  let called = false;
-  globalThis.fetch = (async () => {
-    called = true;
-    return new Response('', { status: 200 });
+  let requestedUrl = '';
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    requestedUrl = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+    return new Response(JSON.stringify({ total_count: 0, items: [] }), { status: 200 });
   }) as typeof fetch;
   try {
     const resp = await topStarred(new Request('http://localhost/api/github/top-starred?preset=all'));
-    assert.equal(resp.status, 400);
-    const body = (await resp.json()) as { errorCode?: string };
-    assert.equal(body.errorCode, 'INVALID_PRESET_QUERY');
-    assert.equal(called, false);
+    assert.equal(resp.status, 200);
+    const body = (await resp.json()) as { preset: string; items: unknown[] };
+    assert.equal(body.preset, 'all');
+    assert.deepEqual(body.items, []);
+    const url = new URL(requestedUrl);
+    assert.equal(url.searchParams.get('q'), 'stars:>0');
+    assert.equal(url.searchParams.get('sort'), 'stars');
+    assert.equal(url.searchParams.get('order'), 'desc');
   } finally {
     restore(originalToken, originalFetch);
   }
