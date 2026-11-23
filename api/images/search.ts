@@ -3,14 +3,15 @@
 // Requires PIXABAY_API_KEY environment variable.
 
 import type { Request } from 'express';
+import { readJsonBody } from '../../src/lib/responseJson.ts';
 
-const PIXABAY_API_KEY = process.env.PIXABAY_API_KEY?.trim();
 const PIXABAY_BASE = 'https://pixabay.com/api';
 
 export default async function handler(req: Request): Promise<Response> {
   const query = (req.query.q ?? '').toString().trim();
   const page = Number(req.query.page ?? 1);
   const perPage = Number(req.query.perPage ?? 9);
+  const apiKey = process.env.PIXABAY_API_KEY?.trim();
 
   if (!query) {
     return new Response(
@@ -19,7 +20,7 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
-  if (!PIXABAY_API_KEY) {
+  if (!apiKey) {
     console.warn('[Pixabay] PIXABAY_API_KEY not set; returning stub results.');
     return new Response(
       JSON.stringify({
@@ -34,7 +35,7 @@ export default async function handler(req: Request): Promise<Response> {
 
   try {
     const endpoint = `${PIXABAY_BASE}/?key=${encodeURIComponent(
-      PIXABAY_API_KEY,
+      apiKey,
     )}&q=${encodeURIComponent(query)}&per_page=${perPage}&page=${page}`;
 
     const controller = new AbortController();
@@ -51,7 +52,23 @@ export default async function handler(req: Request): Promise<Response> {
       );
     }
 
-    const data = (await resp.json()) as {
+    const body = await readJsonBody(resp);
+    if (
+      !body.ok ||
+      body.value === null ||
+      typeof body.value !== 'object' ||
+      Array.isArray(body.value) ||
+      !Array.isArray((body.value as { hits?: unknown }).hits)
+    ) {
+      return new Response(
+        JSON.stringify({
+          error: `Pixabay API returned an unreadable response body (HTTP ${resp.status}).`,
+        }),
+        { status: 502, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+
+    const data = body.value as {
       hits: Array<{
         id: number;
         pageURL: string;

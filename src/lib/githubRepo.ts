@@ -1,4 +1,5 @@
 import type { GitHubRepoMetadata } from '../types/vibeatlas';
+import { readJsonBody } from './responseJson.ts';
 
 /**
  * Shared GitHub repo metadata fetcher.
@@ -66,7 +67,11 @@ async function fetchGitHubRepoFromApi(slug: string): Promise<GitHubRepoResult> {
       return { ok: false, status: resp.status, error: `GitHub API returned status ${resp.status}.` };
     }
 
-    const raw = (await resp.json()) as Record<string, unknown>;
+    const body = await readJsonBody(resp);
+    if (!body.ok) {
+      return { ok: false, status: 502, error: 'GitHub API returned an unreadable response body.' };
+    }
+    const raw = (body.value ?? {}) as Record<string, unknown>;
     const licenseObj = raw.license as Record<string, unknown> | null | undefined;
     const ownerObj = raw.owner as Record<string, unknown> | null | undefined;
 

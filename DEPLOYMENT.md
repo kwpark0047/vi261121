@@ -12,13 +12,16 @@
 브라우저 → Vercel (정적 dist/ + /api 함수)
               ├─ /api/health
               ├─ /api/github/repo          (GitHub REST 조회, 15분 캐시)
-              └─ /api/github/sync-batch    (최대 12개 일괄, GitHub REST 조회)
+              ├─ /api/github/sync-batch      (최대 12개 일괄, GitHub REST 조회)
+               ├─ /api/github/top-starred     (GitHub Stars 랭킹 검색 + 인메모리 캐시)
+               └─ /api/github/translate-descriptions (설명 번역 프록시)    (최대 12개 일괄, GitHub REST 조회)
 브라우저 → Firebase (Google 팝업 인증 + Firestore)
 ```
 
 - 정적 번들: `vite build` → `dist/` (코드 스플리팅; `vite.config.ts`의 assets 복사 플러그인 포함).
 - `/api/*`는 Express가 아니라 **Vercel 함수**가 서빙. 공유 로직은 `src/lib/githubRepo.ts`로 추출해 Express 서버(`server.ts`, 로컬/자가 호스팅용)와 함수가 동시 사용.
 - 함수는 표준 Web API(`Request`/`Response`)만 사용 — Node 빌트인·Express 의존 없음.
+- `/api/github/top-starred`·`/api/github/translate-descriptions`는 두 함수 모듈을 그대로 공유하는 로컬 Express 경로이기도 하다: `bun run dev`/`start`(server.ts)가 동일 핸들러로 프록시하므로 개발 중에도 함수와 같은 계약/검증/에러 JSON을 쓴다. 시크릿은 `.env`에서 `dotenv/config`로 동일하게 읽히므로 로컬에서도 `GITHUB_TOKEN`/`GEMINI_API_KEY`(및 필요 시 `TRANSLATION_MODEL`)를 준비해야 한다.
 - 클라이언트는 상대경로(`/api/github/...`) 사용 → 오리진 동일 시 무수정 동작.
 - `vercel.json`의 `/(.*)` → `/index.html` 재작성은 SPA 히스토리 폴백. 함수 라우트가 재작성보다 우선하지만, 배포 후 `/api/health` 스모크로 확인 권장.
 

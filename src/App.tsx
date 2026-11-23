@@ -19,6 +19,7 @@ import {
   updateProjectGitHubStats,
 } from './lib/firestoreRepo';
 import { DEFAULT_SEARCH_FILTERS, parseUrlState, serializeUrlState } from './lib/urlSync';
+import { readJsonBody } from './lib/responseJson';
 import type {
   ActivePage,
   AppLanguage,
@@ -315,8 +316,12 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repos }),
       });
-      const data = await resp.json();
-      if (resp.ok && data.results) {
+      const parsed = await readJsonBody(resp);
+      const data =
+        parsed.ok && parsed.value !== null && typeof parsed.value === 'object' && !Array.isArray(parsed.value)
+          ? (parsed.value as { results?: Record<string, GitHubRepoMetadata> })
+          : null;
+      if (resp.ok && data?.results) {
         setGithubSyncedMap((prev) => ({ ...prev, ...data.results }));
       }
     } finally {
@@ -330,9 +335,13 @@ export default function App() {
       setSyncingProjectId(project.id);
       try {
         const resp = await fetch(`/api/github/repo?repo=${encodeURIComponent(project.githubRepo)}`);
-        const data = await resp.json();
-        if (resp.ok && data.repo) {
-          const repo = data.repo as GitHubRepoMetadata;
+        const parsed = await readJsonBody(resp);
+        const data =
+          parsed.ok && parsed.value !== null && typeof parsed.value === 'object' && !Array.isArray(parsed.value)
+            ? (parsed.value as { repo?: GitHubRepoMetadata })
+            : null;
+        if (resp.ok && data?.repo) {
+          const repo = data.repo;
           setGithubSyncedMap((prev) => ({ ...prev, [project.githubRepo]: repo }));
           if (!project.isCuratedSeed && user && project.ownerUid === user.uid) {
             await updateProjectGitHubStats(project.id, repo.stars, repo.forks, repo.license);

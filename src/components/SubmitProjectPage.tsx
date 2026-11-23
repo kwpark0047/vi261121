@@ -31,6 +31,7 @@ import {
   validateProjectSubmissionInput,
   type SubmitValidationField,
 } from '../lib/validation';
+import { readJsonBody } from '../lib/responseJson';
 import {
   AUTOSAVE_INTERVAL_MS,
   DEFAULT_SUBMIT_DRAFT_FIELDS,
@@ -229,8 +230,12 @@ export function SubmitProjectPage({
     setFetchingGh(true);
     try {
       const resp = await fetch(`/api/github/repo?repo=${encodeURIComponent(slug)}`);
-      const data = await resp.json();
-      if (!resp.ok || !data.repo) {
+      const parsed = await readJsonBody(resp);
+      const data =
+        parsed.ok && parsed.value !== null && typeof parsed.value === 'object' && !Array.isArray(parsed.value)
+          ? (parsed.value as { repo?: GitHubRepoMetadata })
+          : null;
+      if (!resp.ok || !data?.repo) {
         setGhFeedback(
           resp.status === 404
             ? copy.githubNotFound
@@ -240,7 +245,7 @@ export function SubmitProjectPage({
         );
         return;
       }
-      const repo = data.repo as GitHubRepoMetadata;
+      const repo = data.repo;
       setGhMeta(repo);
       setFormState((prev) => ({
         ...prev,

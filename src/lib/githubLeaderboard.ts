@@ -75,3 +75,78 @@ export function findCatalogProjectByRepo(
   if (!target) return undefined;
   return projects.find((project) => (project.githubRepo ?? '').trim().toLowerCase() === target);
 }
+
+/**
+ * Interprets a parsed `GET /api/github/top-starred` JSON payload. Pure — no
+ * fetch, no DOM — so every branch (HTTP failure with a readable error field,
+ * empty body, non-JSON body, success without an items list) is unit-testable
+ * and the page keeps only state transitions. Message strings mirror the
+ * leaderboard copy that previously lived inline in GitHubStarsPage.
+ */
+export type TopStarredPayloadResult =
+  | {
+      kind: 'items';
+      items: GitHubRankedRepo[];
+      staleCache: boolean;
+      fetchedAt: string;
+    }
+  | {
+      kind: 'failure';
+      message: string;
+      resetAtIso: string | null;
+    };
+
+export type TopStarredBodyKind = 'json' | 'empty' | 'invalid';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export function parseTopStarredPayload(
+  payload: unknown,
+  response: { ok: boolean; status: number },
+  bodyKind: TopStarredBodyKind
+): TopStarredPayloadResult {
+  const data = isRecord(payload) ? payload : null;
+
+  if (!response.ok) {
+    const serverError =
+      data && typeof data.error === 'string' && data.error.trim() ? data.error : null;
+    const suffix =
+      bodyKind === 'empty'
+        ? ' with an empty response body'
+        : bodyKind === 'invalid'
+          ? ' with an unreadable (non-JSON) response body'
+          : '';
+    return {
+      kind: 'failure',
+      message: serverError ?? `Ranking request failed (HTTP ${response.status})${suffix}.`,
+      resetAtIso: typeof data?.resetAtIso === 'string' ? data.resetAtIso : null,
+    };
+  }
+
+  if (!data) {
+    const suffix =
+      bodyKind === 'empty' ? ' — the body was empty' : bodyKind === 'invalid' ? ' — the body was not JSON' : '';
+    return {
+      kind: 'failure',
+      message: `Ranking response was not usable (HTTP ${response.status})${suffix}.`,
+      resetAtIso: null,
+    };
+  }
+
+  if (!Array.isArray(data.items)) {
+    return {
+      kind: 'failure',
+      message: `Ranking response did not contain an items list (HTTP ${response.status}).`,
+      resetAtIso: null,
+    };
+  }
+
+  return {
+    kind: 'items',
+    items: data.items as GitHubRankedRepo[],
+    staleCache: Boolean(data.staleCache),
+    fetchedAt: typeof data.fetchedAt === 'string' && data.fetchedAt ? data.fetchedAt : '',
+  };
+}

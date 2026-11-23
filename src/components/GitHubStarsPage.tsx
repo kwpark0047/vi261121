@@ -23,6 +23,7 @@ import {
   extractLeaderboardLanguages,
   filterGitHubRankedRepos,
   findCatalogProjectByRepo,
+  parseTopStarredPayload,
 } from '../lib/githubLeaderboard';
 import {
   chunkTranslationItems,
@@ -30,6 +31,7 @@ import {
   resolveDisplayedRepoDescription,
 } from '../lib/repoDescriptionTranslator';
 import { sanitizeExternalUrl } from '../lib/validation';
+import { readJsonBody } from '../lib/responseJson';
 import { useVoiceSearch } from '../hooks/useVoiceSearch';
 import { VoiceSearchButton, VoiceSearchFeedback } from './VoiceSearchButton';
 
@@ -37,15 +39,6 @@ interface GitHubStarsPageProps {
   language: AppLanguage;
   catalogProjects: CatalogProject[];
   onOpenDetail: (project: CatalogProject) => void;
-}
-
-interface TopStarredApiResponse {
-  preset: GitHubTopRepoPreset;
-  fetchedAt: string;
-  staleCache?: boolean;
-  items: GitHubRankedRepo[];
-  error?: string;
-  resetAtIso?: string | null;
 }
 
 export function GitHubStarsPage({
@@ -95,28 +88,21 @@ export function GitHubStarsPage({
           `/api/github/top-starred?preset=${encodeURIComponent(targetPreset)}${refreshParam}`,
           { signal }
         );
-        let data: TopStarredApiResponse | null = null;
-        try {
-          data = (await resp.json()) as TopStarredApiResponse;
-        } catch {
-          // Non-JSON body (platform/proxy error surface, SPA fallback, ...)
-          // must not leak a raw JSON.parse SyntaxError to the UI.
-          data = null;
-        }
-        if (!resp.ok) {
-          setErrorMsg(
-            data?.error ??
-              (data === null
-                ? `Ranking request failed (HTTP ${resp.status}) with an unreadable response body.`
-                : `Request failed with status ${resp.status}`)
-          );
-          setResetAtIso(data?.resetAtIso ?? null);
-          setItems([]);
+        const parsed = await readJsonBody(resp);
+        const outcome = parseTopStarredPayload(
+          parsed.ok ? parsed.value : null,
+          { ok: resp.ok, status: resp.status },
+          parsed.ok ? 'json' : parsed.kind
+        );
+        if (outcome.kind === 'items') {
+          setItems(outcome.items);
+          setFetchedAt(outcome.fetchedAt);
+          setStaleCache(outcome.staleCache);
           return;
         }
-        setItems(data && Array.isArray(data.items) ? data.items : []);
-        setFetchedAt(data?.fetchedAt || new Date().toISOString());
-        setStaleCache(Boolean(data?.staleCache));
+        setErrorMsg(outcome.message);
+        setResetAtIso(outcome.resetAtIso);
+        setItems([]);
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return;
         setErrorMsg(err instanceof Error ? err.message : 'Network error loading leaderboard.');
@@ -182,11 +168,31 @@ export function GitHubStarsPage({
           body: JSON.stringify({ targetLanguage: language, items: batch }),
           signal: controller.signal,
         });
-        const data = (await resp.json()) as {
-          translations?: Record<string, string>;
-          error?: string;
-          errorCode?: string;
-        };
+        const parsed = await readJsonBody(resp);
+        const data =
+          parsed.ok && parsed.value !== null && typeof parsed.value === 'object' && !Array.isArray(parsed.value)
+            ? (parsed.value as {
+                translations?: Record<string, string>;
+                error?: string;
+                errorCode?: string;
+              })
+            : null;
+
+        if (!data) {
+          // A body that cannot be read as JSON is a failed translation, not
+          // a silent skip — the UI surfaces it through the error notice path.
+          return {
+            ok: false,
+            status: resp.status,
+            errorCode: 'INVALID_UPSTREAM_BODY',
+            error: parsed.ok
+              ? `Translation response did not contain a usable object (HTTP ${resp.status})`
+              : `Translation response could not be read as JSON (HTTP ${resp.status})${
+                  parsed.kind === 'empty' ? ' — the body was empty' : ''
+                }`,
+            translatedCount: 0,
+          };
+        }
 
         const validEntries: Array<[number, string]> = [];
         if (data.translations && Object.keys(data.translations).length > 0) {

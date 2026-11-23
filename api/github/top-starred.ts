@@ -1,7 +1,7 @@
 import {
   GITHUB_CACHE_TTL_MS,
   GITHUB_FETCH_TIMEOUT_MS,
-} from '../../src/lib/githubRepo';
+} from '../../src/lib/githubRepo.ts';
 import type { GitHubRankedRepo, GitHubTopRepoPreset } from '../../src/types/vibeatlas';
 
 export interface GitHubTopStarredResponse {

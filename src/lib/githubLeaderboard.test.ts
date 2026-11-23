@@ -5,6 +5,7 @@ import {
   extractLeaderboardLanguages,
   filterGitHubRankedRepos,
   findCatalogProjectByRepo,
+  parseTopStarredPayload,
 } from './githubLeaderboard';
 import type { CatalogProject, GitHubRankedRepo } from '../types/vibeatlas';
 
@@ -129,4 +130,98 @@ test('findCatalogProjectByRepo: case-insensitive slug match, trims, returns unde
 test('findCatalogProjectByRepo: blank name never matches', () => {
   assert.equal(findCatalogProjectByRepo([project({})], ''), undefined);
   assert.equal(findCatalogProjectByRepo([project({})], '   '), undefined);
+});
+
+test('parseTopStarredPayload: ok payload maps items and flags', () => {
+  const result = parseTopStarredPayload(
+    { items: [repo({ id: 1 }), repo({ id: 2 })], fetchedAt: '2026-01-01T00:00:00.000Z', staleCache: true },
+    { ok: true, status: 200 },
+    'json'
+  );
+  assert.equal(result.kind, 'items');
+  if (result.kind === 'items') {
+    assert.equal(result.items.length, 2);
+    assert.equal(result.items[0].id, 1);
+    assert.equal(result.fetchedAt, '2026-01-01T00:00:00.000Z');
+    assert.equal(result.staleCache, true);
+  }
+});
+
+test('parseTopStarredPayload: ok payload without optional flags yields empty defaults', () => {
+  const result = parseTopStarredPayload({ items: [repo({ id: 1 })] }, { ok: true, status: 200 }, 'json');
+  assert.equal(result.kind, 'items');
+  if (result.kind === 'items') {
+    assert.equal(result.fetchedAt, '');
+    assert.equal(result.staleCache, false);
+  }
+});
+
+test('parseTopStarredPayload: ok but unreadable/non-object payload → failure wording', () => {
+  const empty = parseTopStarredPayload(null, { ok: true, status: 200 }, 'empty');
+  assert.equal(empty.kind, 'failure');
+  if (empty.kind === 'failure') {
+    assert.equal(empty.message, 'Ranking response was not usable (HTTP 200) — the body was empty.');
+  }
+
+  const invalid = parseTopStarredPayload(null, { ok: true, status: 200 }, 'invalid');
+  assert.equal(invalid.kind, 'failure');
+  if (invalid.kind === 'failure') {
+    assert.equal(invalid.message, 'Ranking response was not usable (HTTP 200) — the body was not JSON.');
+  }
+
+  const array = parseTopStarredPayload([], { ok: true, status: 200 }, 'json');
+  assert.equal(array.kind, 'failure');
+  if (array.kind === 'failure') {
+    assert.equal(array.message, 'Ranking response was not usable (HTTP 200).');
+  }
+});
+
+test('parseTopStarredPayload: ok object without an items array → failure', () => {
+  const result = parseTopStarredPayload({ fetchedAt: 'x' }, { ok: true, status: 200 }, 'json');
+  assert.equal(result.kind, 'failure');
+  if (result.kind === 'failure') {
+    assert.equal(result.message, 'Ranking response did not contain an items list (HTTP 200).');
+  }
+});
+
+test('parseTopStarredPayload: HTTP failure prefers the server error field and resetAtIso', () => {
+  const result = parseTopStarredPayload(
+    { error: 'GitHub API rate limit reached.', resetAtIso: '2026-01-01T00:00:00.000Z' },
+    { ok: false, status: 429 },
+    'json'
+  );
+  assert.equal(result.kind, 'failure');
+  if (result.kind === 'failure') {
+    assert.equal(result.message, 'GitHub API rate limit reached.');
+    assert.equal(result.resetAtIso, '2026-01-01T00:00:00.000Z');
+  }
+});
+
+test('parseTopStarredPayload: HTTP failure words empty/invalid bodies from status', () => {
+  const empty = parseTopStarredPayload(null, { ok: false, status: 502 }, 'empty');
+  assert.equal(empty.kind, 'failure');
+  if (empty.kind === 'failure') {
+    assert.equal(empty.message, 'Ranking request failed (HTTP 502) with an empty response body.');
+    assert.equal(empty.resetAtIso, null);
+  }
+
+  const invalid = parseTopStarredPayload(null, { ok: false, status: 500 }, 'invalid');
+  assert.equal(invalid.kind, 'failure');
+  if (invalid.kind === 'failure') {
+    assert.equal(invalid.message, 'Ranking request failed (HTTP 500) with an unreadable (non-JSON) response body.');
+  }
+
+  const plain = parseTopStarredPayload(null, { ok: false, status: 503 }, 'json');
+  assert.equal(plain.kind, 'failure');
+  if (plain.kind === 'failure') {
+    assert.equal(plain.message, 'Ranking request failed (HTTP 503).');
+  }
+});
+
+test('parseTopStarredPayload: non-string error field never leaks into the message', () => {
+  const result = parseTopStarredPayload({ error: 42 }, { ok: false, status: 500 }, 'json');
+  assert.equal(result.kind, 'failure');
+  if (result.kind === 'failure') {
+    assert.equal(result.message, 'Ranking request failed (HTTP 500).');
+  }
 });
