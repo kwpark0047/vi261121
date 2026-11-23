@@ -95,16 +95,28 @@ export function GitHubStarsPage({
           `/api/github/top-starred?preset=${encodeURIComponent(targetPreset)}${refreshParam}`,
           { signal }
         );
-        const data = (await resp.json()) as TopStarredApiResponse;
+        let data: TopStarredApiResponse | null = null;
+        try {
+          data = (await resp.json()) as TopStarredApiResponse;
+        } catch {
+          // Non-JSON body (platform/proxy error surface, SPA fallback, ...)
+          // must not leak a raw JSON.parse SyntaxError to the UI.
+          data = null;
+        }
         if (!resp.ok) {
-          setErrorMsg(data.error || `Request failed with status ${resp.status}`);
-          setResetAtIso(data.resetAtIso ?? null);
+          setErrorMsg(
+            data?.error ??
+              (data === null
+                ? `Ranking request failed (HTTP ${resp.status}) with an unreadable response body.`
+                : `Request failed with status ${resp.status}`)
+          );
+          setResetAtIso(data?.resetAtIso ?? null);
           setItems([]);
           return;
         }
-        setItems(Array.isArray(data.items) ? data.items : []);
-        setFetchedAt(data.fetchedAt || new Date().toISOString());
-        setStaleCache(Boolean(data.staleCache));
+        setItems(data && Array.isArray(data.items) ? data.items : []);
+        setFetchedAt(data?.fetchedAt || new Date().toISOString());
+        setStaleCache(Boolean(data?.staleCache));
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return;
         setErrorMsg(err instanceof Error ? err.message : 'Network error loading leaderboard.');

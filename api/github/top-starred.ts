@@ -84,9 +84,33 @@ function staleResponse(preset: GitHubTopRepoPreset, entry: LeaderboardCacheEntry
 }
 
 export default async function handler(req: Request): Promise<Response> {
+  try {
+    return await handleTopStarred(req);
+  } catch (err) {
+    // Route contract: every outcome is JSON. An unexpected throw must never
+    // fall through to the platform's non-JSON error surface.
+    console.error('[top-starred] unhandled error:', err instanceof Error ? err.message : err);
+    return Response.json(
+      {
+        fetchedAt: nowIso(),
+        items: [],
+        error: 'Internal server error while handling top-starred request.',
+        errorCode: 'INTERNAL_ERROR',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+async function handleTopStarred(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const presetParam = url.searchParams.get('preset');
-  const preset = presetParam && presetParam in PRESET_QUERY ? (presetParam as GitHubTopRepoPreset) : null;
+  // hasOwnProperty, not `in`: `in` walks the prototype chain, so a param like
+  // "toString" would pass the check and misshape the upstream query.
+  const preset =
+    presetParam && Object.prototype.hasOwnProperty.call(PRESET_QUERY, presetParam)
+      ? (presetParam as GitHubTopRepoPreset)
+      : null;
   if (!preset) {
     return Response.json(
       { error: `Unknown preset "${presetParam ?? ''}".`, errorCode: 'INVALID_PRESET' },
