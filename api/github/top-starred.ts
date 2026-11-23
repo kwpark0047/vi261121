@@ -22,10 +22,12 @@ interface LeaderboardCacheEntry {
 const leaderboardCache = new Map<GitHubTopRepoPreset, LeaderboardCacheEntry>();
 
 /**
- * GitHub has no canonical search qualifier for every cohort below. `all` and the
- * four language presets map to real search API params; `web_apps` and
- * `ai_agents` are best-effort text heuristics over the search index and will
- * be refined as we can validate them against the live API.
+ * GitHub has no canonical search qualifier for every cohort below. The four
+ * language presets map to real search API params; `web_apps` and `ai_agents`
+ * are best-effort text heuristics over the search index and will be refined
+ * as we can validate them against the live API. `all` is kept for API/UI
+ * compatibility only — GitHub search requires a non-empty `q`, so the handler
+ * rejects it explicitly instead of silently dropping the parameter.
  */
 const PRESET_QUERY: Record<GitHubTopRepoPreset, string> = {
   all: '',
@@ -123,7 +125,19 @@ export default async function handler(req: Request): Promise<Response> {
   endpoint.searchParams.set('order', 'desc');
   endpoint.searchParams.set('per_page', '100');
   const q = PRESET_QUERY[preset];
-  if (q) endpoint.searchParams.set('q', q);
+  if (!q) {
+    return Response.json(
+      {
+        preset,
+        fetchedAt: nowIso(),
+        items: [],
+        error: `"${preset}" is unavailable: GitHub search requires a non-empty "q" parameter.`,
+        errorCode: 'INVALID_PRESET_QUERY',
+      },
+      { status: 400 }
+    );
+  }
+  endpoint.searchParams.set('q', q);
 
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
